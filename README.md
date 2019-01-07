@@ -1,2 +1,3 @@
 # cv-proof-of-concept-2019
-CV testing
+limelight (George, 
+rio (Renee, Emily, Timothy
