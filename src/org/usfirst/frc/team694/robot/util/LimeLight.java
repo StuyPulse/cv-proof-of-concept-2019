@@ -1,13 +1,4 @@
-/*
- * Lime Light Client:
- * Issues? Feel free to contact me as Sam Belliveau on Slack.
- * the purpose of this project is to directly communicate with the Lime Light.
- * This extends the included NetworkTableClient by taking table names from the
- * Lime Light Documents. Using this will let you spend less time trouble
- * shooting with Network Tables and spend more time making usable.
- *
- * Lime Light Docs: http://docs.limelightvision.io/en/latest/networktables_api.html#
- */
+/* Lime Light Docs: http://docs.limelightvision.io/en/latest/networktables_api.html# */
 
 package org.usfirst.frc.team694.util;
 
