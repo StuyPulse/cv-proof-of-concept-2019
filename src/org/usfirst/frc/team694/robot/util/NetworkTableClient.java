@@ -1,18 +1,5 @@
 
-/*
- * Network Table Client:
- * Issues? Feel free to contact me as Sam Belliveau on Slack.
- * The purpose of this project is to handle Network Tables
- * in one class so that any changes we make here, will work
- * every time we use a network table
- *
- * It is **NOT** made to recieve Roborio information from the
- * Drive Station, it is met to recieve information from the Lime-Light
- * and make it easy to read on the Roborio.
- *
- * If you have any questions feel free to contact me at sbelliveau20@stuy.edu
- * or Sam Belliveau on slack. Feel free to adapt this code to fit your needs
- */
+/* http://first.wpi.edu/FRC/roborio/release/docs/java/ */
 
 package org.usfirst.frc.team694.util;
 
