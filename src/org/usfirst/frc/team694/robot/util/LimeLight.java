@@ -31,7 +31,7 @@ public enum CAM_MODE {
   public int getCodeValue() { return codeValue; }
 };
 
-public enum STREAM {
+public enum STREAM { // PIP = Picture-In-Picture
   STANDARD(0), PIP_MAIN(1), PIP_SECONDARY(2);
 
   private int codeValue;
