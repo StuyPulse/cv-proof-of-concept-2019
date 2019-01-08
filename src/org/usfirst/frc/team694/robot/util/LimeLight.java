@@ -42,7 +42,7 @@ public enum SNAPSHOT_MODE {
 
 class LimeLight {
   // Network Table used to contact Lime Light
-  public static NetworkTableClient table = new NetworkTableClient("limelight");
+  private static NetworkTableClient table = new NetworkTableClient("limelight");
 
   /* “Best” Contour information */
   // Whether the limelight has any valid targets (0 or 1)
@@ -60,7 +60,7 @@ class LimeLight {
   // Vertical Offset From Crosshair To Target (-20.5 degrees to 20.5 degrees)
   public static final double MIN_Y_OFFSET = -20.5;
   public static final double MAX_Y_OFFSET = 20.5;
-  public static double getTY() {
+  public static double getTargetYOffset() {
     return table.getDouble("ty");
   }
 
@@ -80,7 +80,7 @@ class LimeLight {
 
   // The pipeline’s latency contribution (ms) Add at
   // least 11ms for image capture latency.
-  public static final double DEFAULT_LATENCY = 11;
+  public static final double IMAGE_CAPTURE_LATENCY = 11;
   public static double getLatency() {
     return table.getDouble("tl") + DEFAULT_LATENCY;
   }
@@ -107,7 +107,9 @@ class LimeLight {
   // ---------+----------------------------------
   // 0..9     |	Select pipeline 0..9
   public static void setPipeline(int pipeline) {
-    if(pipeline >= 0 && pipeline <= 9) table.setNumber("pipeline", pipeline);
+    if(pipeline >= 0 && pipeline <= 9) { 
+      table.setNumber("pipeline", pipeline);
+    }
   }
 
   // stream   |	Sets limelight’s streaming mode
@@ -124,7 +126,7 @@ class LimeLight {
   // 0        |	Stop taking snapshots
   // 1        |	Take two snapshots per second
   public static void setSnapshotMode(SNAPSHOT_MODE snapshot) {
-    table.setNumber("stream", snapshot.getCodeValue());
+    table.setNumber("snapshot", snapshot.getCodeValue());
   }
 
   /* Advanced Usage with Raw Contours */
