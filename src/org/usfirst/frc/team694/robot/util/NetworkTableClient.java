@@ -1,7 +1,7 @@
 
 /*
  * Network Table Client:
- * Writer: Sam Belliveau, sbelliveau20@stuy.edu
+ * Issues? Feel free to contact me as Sam Belliveau on Slack.
  * The purpose of this project is to handle Network Tables
  * in one class so that any changes we make here, will work
  * every time we use a network table
