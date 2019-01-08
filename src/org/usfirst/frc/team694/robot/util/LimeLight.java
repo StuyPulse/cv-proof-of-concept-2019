@@ -50,11 +50,12 @@ public enum SNAPSHOT_MODE {
 };
 
 class LimeLight {
+  // Network Table used to contact Lime Light
   public static NetworkTableClient table = new NetworkTableClient("limelight");
 
   /* “Best” Contour information */
   // Whether the limelight has any valid targets (0 or 1)
-  public static boolean isValidTarget() {
+  public static boolean hasValidTarget() {
     return table.getDouble("tv") == 1;
   }
 
