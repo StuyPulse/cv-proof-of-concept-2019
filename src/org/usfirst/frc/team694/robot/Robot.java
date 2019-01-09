@@ -17,7 +17,7 @@ import org.usfirst.frc.team694.robot.subsystems.ExampleSubsystem;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import src.org.usfirst.frc.team694.util;
+import src.org.usfirst.frc.team694.util.*;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -115,6 +115,10 @@ public class Robot extends TimedRobot {
 	 */
 	@Override
 	public void teleopPeriodic() {
+		// double x = LimeLight.getXOffset();
+		// double y = LimeLight.getYOffset();
+		// double area = LimeLight.getTargetArea();
+	
 		Scheduler.getInstance().run();
 		NetworkTableEntry tx = table.getEntry("tx");
 		NetworkTableEntry ty = table.getEntry("ty");
