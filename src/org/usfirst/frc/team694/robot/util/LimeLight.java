@@ -4,40 +4,42 @@ package org.usfirst.frc.team694.util;
 
 import org.usfirst.frc.team694.util.NetworkTableClient;
 
+// Using enums because random constants are unreadable
 public enum LED_MODE {
-  PIPELINE(0), FORCE_OFF(1), FORCE_BLINK(2), FORCE_ON(3);
+  PIPELINE(0),    // Use LED mode set in pipeline 
+  FORCE_OFF(1),   // Force LEDs off
+  FORCE_BLINK(2), // Force LEDs to blink
+  FORCE_ON(3);    // Force LEDs on 
 
-  private int codeValue;
-
-  LED_MODE(int value) { this.codeValue = value; }
-  public int getCodeValue() { return codeValue; }
+  LED_MODE(int value) { this.val = value; }
+  public int getCodeValue() { return val; }
+  private int val;
 };
 
 public enum CAM_MODE {
-  VISION(0), DRIVER(1);
+  VISION(0), // Use limelight for CV
+  DRIVER(1); // Use limelight for driving (this is dumb, dont do this)
 
-  private int codeValue;
-
-  CAM_MODE(int value) { this.codeValue = value; }
-  public int getCodeValue() { return codeValue; }
+  LED_MODE(int value) { this.val = value; }
+  public int getCodeValue() { return val; }
+  private int val;
 };
 
 public enum STREAM { // PIP = Picture-In-Picture
   STANDARD(0), PIP_MAIN(1), PIP_SECONDARY(2);
 
-  private int codeValue;
-
-  STREAM_MODE(int value) { this.codeValue = value; }
-  public int getCodeValue() { return codeValue; }
+  LED_MODE(int value) { this.val = value; }
+  public int getCodeValue() { return val; }
+  private int val;
 };
 
 public enum SNAPSHOT_MODE {
-  STOP(0), TAKE_TWO_PER_SECOND(1);
-
-  private int codeValue;
-
-  SNAPSHOT_MODE(int value) { this.codeValue = value; }
-  public int getCodeValue() { return codeValue; }
+  STOP(0), // Don't take snapshots
+  TAKE_TWO_PER_SECOND(1); // Take two snapshots per second
+  
+  LED_MODE(int value) { this.val = value; }
+  public int getCodeValue() { return val; }
+  private int val;
 };
 
 class LimeLight {
@@ -47,6 +49,7 @@ class LimeLight {
   /* “Best” Contour information */
   // Whether the limelight has any valid targets (0 or 1)
   public static boolean hasValidTarget() {
+    // == 1 converts double to boolean
     return table.getDouble("tv") == 1;
   }
 
@@ -66,9 +69,11 @@ class LimeLight {
 
   // Target Area (0% of image to 100% of image)
   public static final double MIN_TARGET_AREA = 0;
-  public static final double MAX_TARGET_AREA = 100;
+  public static final double MAX_TARGET_AREA = 1;
   public static double getTargetArea() {
-    return table.getDouble("ta");
+    // Lime light returns a double from 0 - 100
+    // Divide by 100 to scale number from 0 - 1
+    return table.getDouble("ta") / 100.0;
   }
 
   // Skew or rotation (-90 degrees to 0 degrees)
@@ -82,10 +87,12 @@ class LimeLight {
   // least 11ms for image capture latency.
   public static final double IMAGE_CAPTURE_LATENCY = 11;
   public static double getLatency() {
-    return table.getDouble("tl") + DEFAULT_LATENCY;
+    // Add Image Capture Latency to 
+    // get more accurate result
+    return table.getDouble("tl") + IMAGE_CAPTURE_LATENCY;
   }
 
-  /* Camera Controls */
+  /* Camera Controls (Use Enums to prevent invalid inputs) */
   // ledMode  |	Sets limelight’s LED state
   // 0        |	use the LED Mode set in the current pipeline
   // 1        |	force off
@@ -107,6 +114,7 @@ class LimeLight {
   // ---------+----------------------------------
   // 0..9     |	Select pipeline 0..9
   public static void setPipeline(int pipeline) {
+    // Prevent input of invalid pipelines
     if(pipeline >= 0 && pipeline <= 9) { 
       table.setNumber("pipeline", pipeline);
     }
@@ -131,6 +139,10 @@ class LimeLight {
 
   /* Advanced Usage with Raw Contours */
   /* Raw Targets */
+
+  // Raw Contours are formatted as tx0, ty0, tx1, ty1, tx2, ty2
+  // So to make this easier, you pass an int and it formats it
+
   // Raw Screenspace X
   public static double getTX(int Target) {
     return table.getDouble("tx" + Integer.toString(Target));
@@ -143,7 +155,9 @@ class LimeLight {
 
   // Area (0% of image to 100% of image)
   public static double getTA(int Target) {
-    return table.getDouble("ta" + Integer.toString(Target));
+    // Lime light returns a double from 0 - 100
+    // Divide by 100 to scale number from 0 - 1
+    return table.getDouble("ta" + Integer.toString(Target)) / 100.0;
   }
 
   // Skew or rotation (-90 degrees to 0 degrees)
