@@ -153,10 +153,10 @@ class NetworkTableClient {
 
   /* Make value persistent through program restarts. */
   public void setPersistent(String EntryName) {
-    getEntry(EntryName).setPersistent()
+    getEntry(EntryName).setPersistent();
   }
 
   public void clearPersistent(String EntryName) {
-    getEntry(EntryName).clearPersistent()
+    getEntry(EntryName).clearPersistent();
   }
 }
