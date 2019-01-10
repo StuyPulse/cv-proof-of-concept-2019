@@ -4,13 +4,13 @@
 package frc.robot.util;
 
 import java.util.Set;
-import java.util.Number;
+import java.lang.Number;
 
 import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.TableListener;
 import edu.wpi.first.networktables.TableEntryListener;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.PersistentException;
 
 class NetworkTableClient {
   /* Members */
@@ -50,12 +50,12 @@ class NetworkTableClient {
 
   /* Saving and writing tables to files */
   // Load entries from a file into the network table
-  public String[] loadEntries(String FileName) {
+  public String[] loadEntries(String FileName) throws PersistentException {
     return table.loadEntries(FileName);
   }
 
   // Save the network table to a file
-  public void saveEntries(String FileName) {
+  public void saveEntries(String FileName) throws PersistentException {
     table.saveEntries(FileName);
   }
 
@@ -143,12 +143,12 @@ class NetworkTableClient {
     return getEntry(EntryName).setString(Value);
   }
 
-  public boolean setFlags(String EntryName, int Value) {
-    return getEntry(EntryName).setFlags(Value);
+  public void setFlags(String EntryName, int Value) {
+    getEntry(EntryName).setFlags(Value);
   }
 
-  public boolean clearFlags(String EntryName) {
-    return getEntry(EntryName).clearFlags();
+  public void clearFlags(String EntryName, int Value) {
+    getEntry(EntryName).clearFlags(Value);
   }
 
   /* Make value persistent through program restarts. */

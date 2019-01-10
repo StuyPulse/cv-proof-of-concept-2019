@@ -4,45 +4,45 @@ package frc.robot.util;
 
 import frc.robot.util.NetworkTableClient;
 
-// Using enums because random constants are unreadable
-public enum LED_MODE {
-  PIPELINE(0),    // Use LED mode set in pipeline 
-  FORCE_OFF(1),   // Force LEDs off
-  FORCE_BLINK(2), // Force LEDs to blink
-  FORCE_ON(3);    // Force LEDs on 
-
-  LED_MODE(int value) { this.val = value; }
-  public int getCodeValue() { return val; }
-  private int val;
-};
-
-public enum CAM_MODE {
-  VISION(0), // Use limelight for CV
-  DRIVER(1); // Use limelight for driving (this is dumb, dont do this)
-
-  LED_MODE(int value) { this.val = value; }
-  public int getCodeValue() { return val; }
-  private int val;
-};
-
-public enum STREAM { // PIP = Picture-In-Picture
-  STANDARD(0), PIP_MAIN(1), PIP_SECONDARY(2);
-
-  LED_MODE(int value) { this.val = value; }
-  public int getCodeValue() { return val; }
-  private int val;
-};
-
-public enum SNAPSHOT_MODE {
-  STOP(0), // Don't take snapshots
-  TAKE_TWO_PER_SECOND(1); // Take two snapshots per second
-  
-  LED_MODE(int value) { this.val = value; }
-  public int getCodeValue() { return val; }
-  private int val;
-};
-
 class LimeLight {
+  // Using enums because random constants are unreadable
+  public enum LED_MODE {
+    PIPELINE(0),    // Use LED mode set in pipeline 
+    FORCE_OFF(1),   // Force LEDs off
+    FORCE_BLINK(2), // Force LEDs to blink
+    FORCE_ON(3);    // Force LEDs on 
+
+    LED_MODE(int value) { this.val = value; }
+    public int getCodeValue() { return val; }
+    private int val;
+  };
+
+  public enum CAM_MODE {
+    VISION(0), // Use limelight for CV
+    DRIVER(1); // Use limelight for driving (this is dumb, dont do this)
+
+    CAM_MODE(int value) { this.val = value; }
+    public int getCodeValue() { return val; }
+    private int val;
+  };
+
+  public enum STREAM { // PIP = Picture-In-Picture
+    STANDARD(0), PIP_MAIN(1), PIP_SECONDARY(2);
+
+    STREAM(int value) { this.val = value; }
+    public int getCodeValue() { return val; }
+    private int val;
+  };
+
+  public enum SNAPSHOT_MODE {
+    STOP(0), // Don't take snapshots
+    TAKE_TWO_PER_SECOND(1); // Take two snapshots per second
+    
+    SNAPSHOT_MODE(int value) { this.val = value; }
+    public int getCodeValue() { return val; }
+    private int val;
+  };
+
   // Network Table used to contact Lime Light
   private static NetworkTableClient table = new NetworkTableClient("limelight");
 
@@ -107,7 +107,7 @@ class LimeLight {
   // 0        |	Vision processor
   // 1        |	Driver Camera (Increases exposure, disables vision processing)
   public static void setCamMode(CAM_MODE mode) {
-    table.setNumber("camMode", mode.getValueCode());
+    table.setNumber("camMode", mode.getCodeValue());
   }
 
   // pipeline |	Sets limelight’s current pipeline
