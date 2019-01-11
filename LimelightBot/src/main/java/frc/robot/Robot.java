@@ -29,7 +29,6 @@ import frc.robot.util.*;
  */
 public class Robot extends TimedRobot {
 	public static ExampleSubsystem m_subsystem = new ExampleSubsystem();
-	public static OI m_oi;
 	public NetworkTable table;
 	//NetworkTableClient client;
 	Command m_autonomousCommand;
@@ -41,7 +40,6 @@ public class Robot extends TimedRobot {
 	 */
 	@Override
 	public void robotInit() {
-		m_oi = new OI();
 		table = NetworkTableInstance.getDefault().getTable("limelight");
 		m_chooser.addDefault("Default Auto", new ExampleCommand());
 		// chooser.addObject("My Auto", new MyAutoCommand());
