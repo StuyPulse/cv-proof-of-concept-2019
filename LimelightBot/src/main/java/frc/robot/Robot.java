@@ -116,8 +116,8 @@ public class Robot extends TimedRobot {
 	public void teleopPeriodic() {
 		Scheduler.getInstance().run();
 
-		// double x = LimeLight.getXOffset();
-		// double y = LimeLight.getYOffset();
+		// double x = LimeLight.getTargetXOffset();
+		// double y = LimeLight.getTargetYOffset();
 		// double area = LimeLight.getTargetArea();
 
 		NetworkTableEntry tx = table.getEntry("tx");

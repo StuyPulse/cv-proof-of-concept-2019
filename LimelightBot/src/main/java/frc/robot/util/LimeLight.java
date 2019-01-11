@@ -4,7 +4,7 @@ package frc.robot.util;
 
 import frc.robot.util.NetworkTableClient;
 
-class LimeLight {
+public class LimeLight {
   // Using enums because random constants are unreadable
   public enum LED_MODE {
     PIPELINE(0),    // Use LED mode set in pipeline 
