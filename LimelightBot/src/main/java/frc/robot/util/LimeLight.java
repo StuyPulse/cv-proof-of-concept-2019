@@ -92,6 +92,36 @@ public class LimeLight {
     return table.getDouble("tl") + IMAGE_CAPTURE_LATENCY;
   }
 
+  // Sidelength of shortest side of the fitted bounding box (pixels)
+  public static double getShortestSidelength() {
+    return table.getDouble("tshort");
+  }
+
+  // Sidelength of longest side of the fitted bounding box (pixels)
+  public static double getLongestSidelength() {
+    return table.getDouble("tlong");
+  }
+
+  // Horizontal sidelength of the rough bounding box (0 - 320 pixels)
+  public static double getHorizontalSidelength() {
+    return table.getDouble("thoriz");
+  }
+
+  // Vertical sidelength of the rough bounding box (0 - 320 pixels)
+  public static double getVirticalSidelength() {
+    return table.getDouble("tvert");
+  }
+
+  // Return data given by custom GRIP pipeline
+  public static double getCustomDouble(String Element) {
+    return table.getDouble(Element);
+  }
+
+  // Return data given by custom GRIP pipeline
+  public static String getCustomString(String Element) {
+    return table.getString(Element);
+  }
+
   /* Camera Controls (Use Enums to prevent invalid inputs) */
   // ledMode  |	Sets limelight’s LED state
   // 0        |	use the LED Mode set in the current pipeline
