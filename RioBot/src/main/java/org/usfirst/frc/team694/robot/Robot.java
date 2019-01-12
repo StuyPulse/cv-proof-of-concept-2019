@@ -12,7 +12,15 @@ import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import stuyvision.ModuleRunner;
+import stuyvision.capture.DeviceCaptureSource;
+
+import java.util.Date;
+
+import org.opencv.core.Mat;
+import org.opencv.imgcodecs.Imgcodecs;
 import org.usfirst.frc.team694.robot.commands.ExampleCommand;
+import org.usfirst.frc.team694.robot.cv.Camera;
 import org.usfirst.frc.team694.robot.subsystems.ExampleSubsystem;
 
 /**
@@ -39,6 +47,19 @@ public class Robot extends TimedRobot {
 		m_chooser.addDefault("Default Auto", new ExampleCommand());
 		// chooser.addObject("My Auto", new MyAutoCommand());
 		SmartDashboard.putData("Auto mode", m_chooser);
+		
+		System.out.println(System.getProperty("java.library.path"));
+        ModuleRunner runner = new ModuleRunner(5);
+		DeviceCaptureSource cam = Camera.initializeCamera(0);
+		String date = new Date().toString();
+		Mat frame = Camera.getImage(cam);
+		if (frame == null) {
+			System.out.println("Failed to read from camera");
+		} else {
+		Imgcodecs.imwrite("/tmp/" + date + ".png", frame);
+		System.out.println("Succeeded in reading from camera");
+		}
+		frame.release();
 	}
 
 	/**

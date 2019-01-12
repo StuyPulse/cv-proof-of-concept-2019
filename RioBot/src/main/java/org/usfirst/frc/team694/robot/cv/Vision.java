@@ -9,5 +9,6 @@ public class Vision extends VisionModule {
     @Override
     public void run(Mat frame) {
         postImage(frame, "Frame");
+        
     }
 }
