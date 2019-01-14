@@ -41,7 +41,7 @@ public class LimeLight {
   // Skew or rotation (-90 degrees to 0 degrees)
   public static final double MIN_SKEW = -90;
   public static final double MAX_SKEW = 0;
-  public static double getSkew() {
+  public static double getTargetSkew() {
     return table.getDouble("ts");
   }
 
@@ -157,35 +157,35 @@ public class LimeLight {
   // So to make this easier, you pass an int and it formats it
 
   // Raw Screenspace X
-  public static double getTX(int Target) {
+  public static double getTargetXOffset(int Target) {
     return table.getDouble("tx" + Integer.toString(Target));
   }
 
   // Raw Screenspace Y
-  public static double getTY(int Target) {
+  public static double getTargetYOffset(int Target) {
     return table.getDouble("ty" + Integer.toString(Target));
   }
 
   // Area (0% of image to 100% of image)
-  public static double getTA(int Target) {
+  public static double getTargetArea(int Target) {
     // Lime light returns a double from 0 - 100
     // Divide by 100 to scale number from 0 - 1
     return table.getDouble("ta" + Integer.toString(Target)) / 100.0;
   }
 
   // Skew or rotation (-90 degrees to 0 degrees)
-  public static double getTS(int Target) {
+  public static double getTargetSkew(int Target) {
     return table.getDouble("ts" + Integer.toString(Target));
   }
 
   /* Raw Crosshairs */
   // Crosshair A X in normalized screen space
-  public static double getCX(int crosshair) {
+  public static double getCrosshairX(int crosshair) {
     return table.getDouble("cx" + Integer.toString(crosshair));
   }
 
   // Crosshair A Y in normalized screen space
-  public static double getCY(int crosshair) {
+  public static double getCrosshairY(int crosshair) {
     return table.getDouble("cy" + Integer.toString(crosshair));
   }
 }
