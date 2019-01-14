@@ -145,7 +145,7 @@ public class LimeLight {
     public int getCodeValue() { return val; }
     private int val;
   };
-
+  
   public static void setSnapshotMode(SNAPSHOT_MODE snapshot) {
     table.setNumber("snapshot", snapshot.getCodeValue());
   }
