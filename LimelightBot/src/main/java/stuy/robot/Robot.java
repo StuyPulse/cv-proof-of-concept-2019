@@ -22,8 +22,7 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 
-import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.buttons.JoystickButton;
+import stuy.util.Gamepad;
 
 import stuy.robot.commands.ExampleCommand;
 import stuy.robot.subsystems.ExampleSubsystem;
@@ -53,7 +52,7 @@ public class Robot extends TimedRobot {
 
 	private DifferentialDrive differentialDrive;
 
-	Joystick controller;
+	Gamepad controller;
 
 	/**
 	 * This function is run when the robot is first started up and should be
@@ -88,7 +87,7 @@ public class Robot extends TimedRobot {
 		differentialDrive = new DifferentialDrive(leftSpeedController, rightSpeedController);
 
 		// Be able to read from controller
-		controller = new Joystick(1 /* TODO: find port number*/);
+		controller = new Gamepad(0 /* TODO: find port number*/);
 	}
 
 	/**
@@ -170,7 +169,9 @@ public class Robot extends TimedRobot {
 		SmartDashboard.putNumber("LimelightY", y);
 		SmartDashboard.putNumber("LimelightArea", area);
 
-		differentialDrive.tankDrive(x/60, -x/60);
+		if(controller.getRawButtonPressed(2)) {
+			differentialDrive.tankDrive(x/60, -x/60);
+		}
 
 		/* Backup Code */
 		//NetworkTableEntry tx = table.getEntry("tx");
