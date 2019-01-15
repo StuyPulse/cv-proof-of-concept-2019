@@ -1,7 +1,7 @@
 
 /* http://first.wpi.edu/FRC/roborio/release/docs/java/ */
 
-package stuy.util;
+package frc.util;
 
 import java.util.Set;
 import java.lang.Number;

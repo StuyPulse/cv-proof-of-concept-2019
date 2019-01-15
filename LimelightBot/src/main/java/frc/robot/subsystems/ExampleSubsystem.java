@@ -5,7 +5,7 @@
 /* the project.                                                               */
 /*----------------------------------------------------------------------------*/
 
-package stuy.robot.subsystems;
+package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj.command.Subsystem;
 

@@ -5,7 +5,7 @@
 /* the project.                                                               */
 /*----------------------------------------------------------------------------*/
 
-package stuy.robot;
+package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.command.Command;
@@ -22,11 +22,11 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 
-import stuy.util.Gamepad;
+import frc.util.Gamepad;
 
-import stuy.robot.commands.ExampleCommand;
-import stuy.robot.subsystems.ExampleSubsystem;
-import stuy.util.LimeLight;
+import frc.robot.commands.ExampleCommand;
+import frc.robot.subsystems.ExampleSubsystem;
+import frc.util.LimeLight;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -51,6 +51,10 @@ public class Robot extends TimedRobot {
 	private SpeedControllerGroup rightSpeedController;
 
 	private DifferentialDrive differentialDrive;
+
+	// Changes the speed that the robot will turn
+	// DO NOT set lower than 30
+	private final double SPEED_DIV = 60;
 
 	Gamepad controller;
 
@@ -169,8 +173,12 @@ public class Robot extends TimedRobot {
 		SmartDashboard.putNumber("LimelightY", y);
 		SmartDashboard.putNumber("LimelightArea", area);
 
+		
+
 		if(controller.getRawButtonPressed(2)) {
 			differentialDrive.tankDrive(x/60, -x/60);
+		} else if(controller.getRawButtonPressed(1)) {
+			differentialDrive.tankDrive(-x/60, x/60);
 		}
 
 		/* Backup Code */
