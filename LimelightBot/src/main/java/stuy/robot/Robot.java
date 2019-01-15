@@ -5,20 +5,29 @@
 /* the project.                                                               */
 /*----------------------------------------------------------------------------*/
 
-package frc.robot;
+package stuy.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableEntry;
-import edu.wpi.first.networktables.NetworkTableInstance;
 
-import frc.robot.commands.ExampleCommand;
-import frc.robot.subsystems.ExampleSubsystem;
-import frc.robot.util.*;
+// import edu.wpi.first.networktables.NetworkTable;
+// import edu.wpi.first.networktables.NetworkTableEntry;
+// import edu.wpi.first.networktables.NetworkTableInstance;
+
+import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
+import edu.wpi.first.wpilibj.SpeedControllerGroup;
+import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+
+import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.buttons.JoystickButton;
+
+import stuy.robot.commands.ExampleCommand;
+import stuy.robot.subsystems.ExampleSubsystem;
+import stuy.util.LimeLight;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -29,10 +38,22 @@ import frc.robot.util.*;
  */
 public class Robot extends TimedRobot {
 	public static ExampleSubsystem m_subsystem = new ExampleSubsystem();
-	public NetworkTable table;
+	//public NetworkTable table;
 	//NetworkTableClient client;
 	Command m_autonomousCommand;
 	SendableChooser<Command> m_chooser = new SendableChooser<>();
+
+	private WPI_TalonSRX leftFrontMotor;
+	private WPI_TalonSRX rightFrontMotor;
+	private WPI_TalonSRX leftRearMotor;
+	private WPI_TalonSRX rightRearMotor;
+
+    private SpeedControllerGroup leftSpeedController;
+	private SpeedControllerGroup rightSpeedController;
+
+	private DifferentialDrive differentialDrive;
+
+	Joystick controller;
 
 	/**
 	 * This function is run when the robot is first started up and should be
@@ -40,11 +61,34 @@ public class Robot extends TimedRobot {
 	 */
 	@Override
 	public void robotInit() {
-		table = NetworkTableInstance.getDefault().getTable("limelight");
+		// table = NetworkTableInstance.getDefault().getTable("limelight");
+
 		m_chooser.addDefault("Default Auto", new ExampleCommand());
 		// chooser.addObject("My Auto", new MyAutoCommand());
 		SmartDashboard.putData("Auto mode", m_chooser);
 		//client = new NetworkTableClient("limelight");
+
+		// Initialize Motors
+		leftFrontMotor = new WPI_TalonSRX(1);
+		rightFrontMotor = new WPI_TalonSRX(2);
+		leftRearMotor = new WPI_TalonSRX(3);
+		rightRearMotor = new WPI_TalonSRX(4);
+
+		// Motors were built backwards
+		leftFrontMotor.setInverted(true);
+        rightFrontMotor.setInverted(true);
+        leftRearMotor.setInverted(true);
+		rightRearMotor.setInverted(true);
+
+		// Group Motors
+		leftSpeedController = new SpeedControllerGroup(leftFrontMotor, leftRearMotor);
+		rightSpeedController = new SpeedControllerGroup(rightFrontMotor, rightRearMotor);
+
+		// Make differential drive from motor groups
+		differentialDrive = new DifferentialDrive(leftSpeedController, rightSpeedController);
+
+		// Be able to read from controller
+		controller = new Joystick(1 /* TODO: find port number*/);
 	}
 
 	/**
@@ -116,23 +160,27 @@ public class Robot extends TimedRobot {
 	public void teleopPeriodic() {
 		Scheduler.getInstance().run();
 
-		// double x = LimeLight.getTargetXOffset();
-		// double y = LimeLight.getTargetYOffset();
-		// double area = LimeLight.getTargetArea();
+		// Recieve data from lime light
+		double x = LimeLight.getTargetXOffset();
+		double y = LimeLight.getTargetYOffset();
+		double area = LimeLight.getTargetArea();
 
-		NetworkTableEntry tx = table.getEntry("tx");
-		NetworkTableEntry ty = table.getEntry("ty");
-		NetworkTableEntry ta = table.getEntry("ta");
-		
-		//read values periodically
-		double x = tx.getDouble(0.0);
-		double y = ty.getDouble(0.0);
-		double area = ta.getDouble(0.0);
-
-		//post to smart dashboard periodically
+		// Post to smart dashboard periodically 
 		SmartDashboard.putNumber("LimelightX", x);
 		SmartDashboard.putNumber("LimelightY", y);
 		SmartDashboard.putNumber("LimelightArea", area);
+
+		differentialDrive.tankDrive(x/60, -x/60);
+
+		/* Backup Code */
+		//NetworkTableEntry tx = table.getEntry("tx");
+		//NetworkTableEntry ty = table.getEntry("ty");
+		//NetworkTableEntry ta = table.getEntry("ta");
+		
+		//read values periodically
+		//double x = tx.getDouble(0.0);
+		//double y = ty.getDouble(0.0);
+		//double area = ta.getDouble(0.0);
 	}
 
 	/**
