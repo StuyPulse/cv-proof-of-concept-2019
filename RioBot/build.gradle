@@ -45,7 +45,7 @@ repositories {
 task run(type:JavaExec) {
     main = "org.usfirst.frc.team694.robot.cv.Main"
     classpath = sourceSets.main.runtimeClasspath
-    jvmArgs = ['-Djava.library.path=/c/Users/Public/frc2019/maven/edu/wpi/first/thirdparty/frc2019/opencv/opencv-cpp/3.4.4-4/windows/x86-64/shared']
+    //jvmArgs = ['-Djava.library.path=/c/Users/Public/frc2019/maven/edu/wpi/first/thirdparty/frc2019/opencv/opencv-cpp/3.4.4-4/windows/x86-64/shared']
     //systemProperty "java.library.path", "/c/Users/Public/frc2019/maven/edu/wpi/first/thirdparty/frc2019/opencv/opencv-cpp/3.4.4-4/windows/x86-64/shared"
 }
 
