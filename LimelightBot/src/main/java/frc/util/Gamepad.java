@@ -1,4 +1,4 @@
-package stuy.util;
+package frc.util;
 
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.buttons.Button;

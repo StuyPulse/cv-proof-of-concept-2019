@@ -1,8 +1,8 @@
 /* Lime Light Docs: http://docs.limelightvision.io/en/latest/networktables_api.html# */
 
-package stuy.util;
+package frc.util;
 
-import stuy.util.NetworkTableClient;
+import frc.util.NetworkTableClient;
 
 public class LimeLight {
   // Network Table used to contact Lime Light
