@@ -54,7 +54,11 @@ public class Robot extends TimedRobot {
 
 	// Changes the speed that the robot will turn
 	// DO NOT set lower than 30
-	private final double SPEED_DIV = 60;
+	private final double SPEED_DIV = 16;
+	private final double SPEED_DIV_MOVE = SPEED_DIV*4;
+	private final double FORWARD_AREA = 0.006;
+	private final double BACKWARD_AREA = 0.01;
+	private final boolean MOVE = true;
 
 	Gamepad controller;
 
@@ -156,6 +160,10 @@ public class Robot extends TimedRobot {
 		}
 	}
 
+	private double capValue(double input) {
+		return Math.min(Math.max(input, -1), 1);
+	}
+
 	/**
 	 * This function is called periodically during operator control.
 	 */
@@ -172,13 +180,26 @@ public class Robot extends TimedRobot {
 		SmartDashboard.putNumber("LimelightX", x);
 		SmartDashboard.putNumber("LimelightY", y);
 		SmartDashboard.putNumber("LimelightArea", area);
+		SmartDashboard.putNumber("Turn Value", x/SPEED_DIV);
 
-		
-
-		if(controller.getRawButtonPressed(2)) {
-			differentialDrive.tankDrive(x/60, -x/60);
-		} else if(controller.getRawButtonPressed(1)) {
-			differentialDrive.tankDrive(-x/60, x/60);
+		// If area is too big, its too close, move backwards
+		if(area > BACKWARD_AREA && controller.getRawRightButton()) {
+			SmartDashboard.putString("Driving Status", "Backwards");
+			differentialDrive.tankDrive(-0.75, -0.75);
+		} 
+		// If area is too small, its too far, move forward
+		else if (area < FORWARD_AREA && controller.getRawRightButton()) {
+			SmartDashboard.putString("Driving Status", "Forwards");
+			differentialDrive.tankDrive(0.75, 0.75);
+		} 
+		// Turn the tank drive
+		else if(controller.getRawBottomButton()) {
+			SmartDashboard.putString("Driving Status", "Turning (" + x/SPEED_DIV + ")");
+			differentialDrive.tankDrive(capValue(x/SPEED_DIV), capValue(-x/SPEED_DIV));
+		} else {
+			// Disable Tank Drive
+			differentialDrive.tankDrive(0, 0);
+			SmartDashboard.putString("Driving Status", "Disabled");
 		}
 
 		/* Backup Code */
