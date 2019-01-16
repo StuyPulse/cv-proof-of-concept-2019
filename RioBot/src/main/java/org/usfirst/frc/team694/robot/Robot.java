@@ -17,7 +17,6 @@ import stuyvision.capture.DeviceCaptureSource;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
@@ -26,6 +25,7 @@ import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 import org.usfirst.frc.team694.robot.commands.ExampleCommand;
 import org.usfirst.frc.team694.robot.cv.Camera;
+import org.usfirst.frc.team694.robot.cv.FilterVision;
 import org.usfirst.frc.team694.robot.subsystems.ExampleSubsystem;
 
 /**
@@ -38,6 +38,7 @@ import org.usfirst.frc.team694.robot.subsystems.ExampleSubsystem;
 public class Robot extends TimedRobot {
 	public static ExampleSubsystem m_subsystem = new ExampleSubsystem();
 	public static OI oi;
+	public static FilterVision vision; 
 
 	DeviceCaptureSource cam;
 
@@ -51,6 +52,7 @@ public class Robot extends TimedRobot {
 	@Override
 	public void robotInit() {
 		oi = new OI();
+		vision = new FilterVision();
 		m_chooser.addDefault("Default Auto", new ExampleCommand());
 		// chooser.addObject("My Auto", new MyAutoCommand());
 		SmartDashboard.putData("Auto mode", m_chooser);
@@ -128,31 +130,9 @@ public class Robot extends TimedRobot {
 		//System.out.println(System.getProperty("java.library.path"));
 		//ModuleRunner runner = new ModuleRunner(5);
 		if (oi.gamepad.getRawLeftBumper()) {
-			System.out.println("Bumper pressed");
-			LocalDateTime time = LocalDateTime.now();
-			String localtime = time.toString();
-			Mat frame = Camera.getImage(cam);
-			if (frame == null) {
-				System.out.println("Failed to read from camera");
-			} else {
-			Imgcodecs.imwrite("/tmp/" + localtime + ".png", frame);
-			System.out.println("Succeeded in reading from camera");
-			Imgproc.cvtColor(frame,frame,Imgproc.COLOR_BGR2HSV);
-			ArrayList<Mat> channels = new ArrayList<Mat>();
-			Core.split(frame, channels);
-			Mat hue = new Mat();
-			Core.inRange(channels.get(0), new Scalar(0), new Scalar(0), hue);
-			Imgcodecs.imwrite("/tmp/" + localtime + "hue.png", frame);
-			Mat saturation = new Mat();
-			Core.inRange(channels.get(1), new Scalar(0), new Scalar(0), saturation);
-			Imgcodecs.imwrite("/tmp/" + localtime + "sat.png", frame);
-			Mat filtered = new Mat();
-			Core.bitwise_and(hue, saturation, filtered);
-			Imgcodecs.imwrite("/tmp/" + localtime + "filtered.png", frame);
-			}
-			frame.release();
-			}
+			vision.filter(cam);
 		}	
+	}
 
 	/**
 	 * This function is called periodically during test mode.
