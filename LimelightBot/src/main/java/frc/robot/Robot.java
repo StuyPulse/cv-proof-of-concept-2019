@@ -37,8 +37,8 @@ import frc.util.LimeLight;
  */
 public class Robot extends TimedRobot {
 	public static ExampleSubsystem m_subsystem = new ExampleSubsystem();
-	//public NetworkTable table;
-	//NetworkTableClient client;
+	// public NetworkTable table;
+	// NetworkTableClient client;
 	Command m_autonomousCommand;
 	SendableChooser<Command> m_chooser = new SendableChooser<>();
 
@@ -47,7 +47,7 @@ public class Robot extends TimedRobot {
 	private WPI_TalonSRX leftRearMotor;
 	private WPI_TalonSRX rightRearMotor;
 
-    private SpeedControllerGroup leftSpeedController;
+	private SpeedControllerGroup leftSpeedController;
 	private SpeedControllerGroup rightSpeedController;
 
 	private DifferentialDrive differentialDrive;
@@ -55,16 +55,17 @@ public class Robot extends TimedRobot {
 	// Changes the speed that the robot will turn
 	// DO NOT set lower than 30
 	private final double SPEED_DIV = 16;
-	private final double SPEED_DIV_MOVE = SPEED_DIV*4;
+	private final double MOVE_DIV = 8;
+	private final double FORWARDS_SPEED = 0.9;
 	private final double FORWARD_AREA = 0.006;
 	private final double BACKWARD_AREA = 0.01;
-	private final boolean MOVE = true;
+	private final boolean USE_TANK_DRIVE = false;
 
 	Gamepad controller;
 
 	/**
-	 * This function is run when the robot is first started up and should be
-	 * used for any initialization code.
+	 * This function is run when the robot is first started up and should be used
+	 * for any initialization code.
 	 */
 	@Override
 	public void robotInit() {
@@ -73,35 +74,36 @@ public class Robot extends TimedRobot {
 		m_chooser.addDefault("Default Auto", new ExampleCommand());
 		// chooser.addObject("My Auto", new MyAutoCommand());
 		SmartDashboard.putData("Auto mode", m_chooser);
-		//client = new NetworkTableClient("limelight");
+		// client = new NetworkTableClient("limelight");
 
-		// Initialize Motors
+		// Initialize Motors (HAD TO BE REWIRED)
+		// Random order, doesn't matter
+		rightFrontMotor = new WPI_TalonSRX(3); 
+		rightRearMotor = new WPI_TalonSRX(2);
 		leftFrontMotor = new WPI_TalonSRX(1);
-		rightFrontMotor = new WPI_TalonSRX(2);
-		leftRearMotor = new WPI_TalonSRX(3);
-		rightRearMotor = new WPI_TalonSRX(4);
+		leftRearMotor = new WPI_TalonSRX(4);
 
 		// Motors were built backwards
-		leftFrontMotor.setInverted(true);
-        rightFrontMotor.setInverted(true);
-        leftRearMotor.setInverted(true);
+		rightFrontMotor.setInverted(true);
 		rightRearMotor.setInverted(true);
+		leftFrontMotor.setInverted(true);
+		leftRearMotor.setInverted(true);
 
 		// Group Motors
-		leftSpeedController = new SpeedControllerGroup(leftFrontMotor, leftRearMotor);
 		rightSpeedController = new SpeedControllerGroup(rightFrontMotor, rightRearMotor);
+		leftSpeedController = new SpeedControllerGroup(leftFrontMotor, leftRearMotor);
 
 		// Make differential drive from motor groups
 		differentialDrive = new DifferentialDrive(leftSpeedController, rightSpeedController);
 
 		// Be able to read from controller
-		controller = new Gamepad(0 /* TODO: find port number*/);
+		controller = new Gamepad(0 /* TODO: find port number */);
 	}
 
 	/**
-	 * This function is called once each time the robot enters Disabled mode.
-	 * You can use it to reset any subsystem information you want to clear when
-	 * the robot is disabled.
+	 * This function is called once each time the robot enters Disabled mode. You
+	 * can use it to reset any subsystem information you want to clear when the
+	 * robot is disabled.
 	 */
 	@Override
 	public void disabledInit() {
@@ -115,24 +117,25 @@ public class Robot extends TimedRobot {
 
 	/**
 	 * This autonomous (along with the chooser code above) shows how to select
-	 * between different autonomous modes using the dashboard. The sendable
-	 * chooser code works with the Java SmartDashboard. If you prefer the
-	 * LabVIEW Dashboard, remove all of the chooser code and uncomment the
-	 * getString code to get the auto name from the text box below the Gyro
+	 * between different autonomous modes using the dashboard. The sendable chooser
+	 * code works with the Java SmartDashboard. If you prefer the LabVIEW Dashboard,
+	 * remove all of the chooser code and uncomment the getString code to get the
+	 * auto name from the text box below the Gyro
 	 *
-	 * <p>You can add additional auto modes by adding additional commands to the
-	 * chooser code above (like the commented example) or additional comparisons
-	 * to the switch structure below with additional strings & commands.
+	 * <p>
+	 * You can add additional auto modes by adding additional commands to the
+	 * chooser code above (like the commented example) or additional comparisons to
+	 * the switch structure below with additional strings & commands.
 	 */
 	@Override
 	public void autonomousInit() {
 		m_autonomousCommand = m_chooser.getSelected();
 
 		/*
-		 * String autoSelected = SmartDashboard.getString("Auto Selector",
-		 * "Default"); switch(autoSelected) { case "My Auto": autonomousCommand
-		 * = new MyAutoCommand(); break; case "Default Auto": default:
-		 * autonomousCommand = new ExampleCommand(); break; }
+		 * String autoSelected = SmartDashboard.getString("Auto Selector", "Default");
+		 * switch(autoSelected) { case "My Auto": autonomousCommand = new
+		 * MyAutoCommand(); break; case "Default Auto": default: autonomousCommand = new
+		 * ExampleCommand(); break; }
 		 */
 
 		// schedule the autonomous command (example)
@@ -172,45 +175,51 @@ public class Robot extends TimedRobot {
 		Scheduler.getInstance().run();
 
 		// Recieve data from lime light
-		double x = LimeLight.getTargetXOffset();
-		double y = LimeLight.getTargetYOffset();
-		double area = LimeLight.getTargetArea();
+		final double X = LimeLight.getTargetXOffset();
+		final double Y = LimeLight.getTargetYOffset();
+		final double TURN_VAL = capValue(X / SPEED_DIV);
+		final double AREA = LimeLight.getTargetArea();
 
-		// Post to smart dashboard periodically 
-		SmartDashboard.putNumber("LimelightX", x);
-		SmartDashboard.putNumber("LimelightY", y);
-		SmartDashboard.putNumber("LimelightArea", area);
-		SmartDashboard.putNumber("Turn Value", x/SPEED_DIV);
+		final boolean RIGHT_BUTTON = controller.getRawRightButton();
+		final boolean BOTTOM_BUTTON = controller.getRawBottomButton();
 
-		// If area is too big, its too close, move backwards
-		if(area > BACKWARD_AREA && controller.getRawRightButton()) {
-			SmartDashboard.putString("Driving Status", "Backwards");
-			differentialDrive.tankDrive(-0.75, -0.75);
-		} 
-		// If area is too small, its too far, move forward
-		else if (area < FORWARD_AREA && controller.getRawRightButton()) {
-			SmartDashboard.putString("Driving Status", "Forwards");
-			differentialDrive.tankDrive(0.75, 0.75);
-		} 
-		// Turn the tank drive
-		else if(controller.getRawBottomButton()) {
-			SmartDashboard.putString("Driving Status", "Turning (" + x/SPEED_DIV + ")");
-			differentialDrive.tankDrive(capValue(x/SPEED_DIV), capValue(-x/SPEED_DIV));
+		// Post to smart dashboard periodically
+		SmartDashboard.putNumber("X Offset", X);
+		SmartDashboard.putNumber("Y Offset", Y);
+		SmartDashboard.putNumber("Target Area", AREA);
+		SmartDashboard.putNumber("Turn Value", TURN_VAL);
+
+		SmartDashboard.putBoolean("Right Button Pressed", RIGHT_BUTTON);
+		SmartDashboard.putBoolean("Bottom Button Pressed", BOTTOM_BUTTON);
+
+		SmartDashboard.putNumber("Left Stick", controller.getLeftY());
+		SmartDashboard.putNumber("Right Stick", controller.getRightY());
+
+		if(USE_TANK_DRIVE) {
+			differentialDrive.tankDrive(controller.getLeftY(), controller.getRightY());
+		} else if (RIGHT_BUTTON) {
+			if (AREA > BACKWARD_AREA) {
+				// If area is too big, its too close, move backwards
+				SmartDashboard.putString("Driving Status", "Backwards (" + AREA + " / " + BACKWARD_AREA + ")");
+				differentialDrive.tankDrive(-FORWARDS_SPEED, -FORWARDS_SPEED);
+				// differentialDrive.tankDrive(capValue(-0.75 + TURN_VAL / MOVE_DIV),
+				// capValue(-0.75 - TURN_VAL / MOVE_DIV));
+			} else if (AREA < FORWARD_AREA) {
+				// If area is too small, its too far, move forwarclosed
+				SmartDashboard.putString("Driving Status", "Forwards (" + FORWARD_AREA + "/" + AREA + ")");
+				differentialDrive.tankDrive(FORWARDS_SPEED, FORWARDS_SPEED);
+				// differentialDrive.tankDrive(capValue(0.75 + TURN_VAL / MOVE_DIV),
+				// capValue(0.75 - TURN_VAL / MOVE_DIV));
+			}
+		} else if (BOTTOM_BUTTON) {
+			// Turn the tank drive
+			SmartDashboard.putString("Driving Status", "Turning (" + TURN_VAL + ")");
+			differentialDrive.tankDrive(TURN_VAL, -TURN_VAL);
 		} else {
 			// Disable Tank Drive
+			SmartDashboard.putString("Driving Status", "Disabled (No Buttons Pressed)");
 			differentialDrive.tankDrive(0, 0);
-			SmartDashboard.putString("Driving Status", "Disabled");
 		}
-
-		/* Backup Code */
-		//NetworkTableEntry tx = table.getEntry("tx");
-		//NetworkTableEntry ty = table.getEntry("ty");
-		//NetworkTableEntry ta = table.getEntry("ta");
-		
-		//read values periodically
-		//double x = tx.getDouble(0.0);
-		//double y = ty.getDouble(0.0);
-		//double area = ta.getDouble(0.0);
 	}
 
 	/**
