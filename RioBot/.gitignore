@@ -27,7 +27,7 @@
 *.lai
 *.la
 *.a
-#*.lib
+*.lib
 
 # Executables
 *.exe
@@ -48,7 +48,7 @@
 .mtj.tmp/
 
 # Package Files #
-#*.jar
+*.jar
 *.war
 *.nar
 *.ear
@@ -156,5 +156,7 @@ gradle-app.setting
 .settings/
 bin/
 
+#Un-comment the below line if you ever change the stuyvision.jar file and want to push changes
+#!/lib/*.jar
 
 # End of https://www.gitignore.io/api/c++,java,linux,macos,gradle,windows,visualstudiocode
