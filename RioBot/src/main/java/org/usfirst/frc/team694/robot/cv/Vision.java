@@ -103,10 +103,17 @@ public class Vision extends VisionModule {
     }
 
     public enum Turn {
-        LEFT, RIGHT, CENTER
+        TOO_LEFT, TOO_RIGHT, CENTER
     }
 
-    public Turn getTurn() {
-        //Point center = new Point(, y)
-    }
+    public Turn getTurn(Mat frame, RotatedRect rect) {
+        Point centerPoint = new Point(frame.width()/2, frame.height()/2);
+        if (Math.abs(centerPoint.x - rect.center.x) < 10) {
+            return Turn.CENTER;
+        } else if (centerPoint.x > rect.center.x) {
+            return Turn.TOO_LEFT;
+        } else {
+            return Turn.TOO_RIGHT;
+        }
+    } 
 }
