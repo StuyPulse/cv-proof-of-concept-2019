@@ -70,7 +70,7 @@ public class Robot extends TimedRobot {
 		// client = new NetworkTableClient("limelight");
 
 		// Initialize Motors (HAD TO BE REWIRED)
-		// Random order, doesn't matter
+		// Looks random, but this is very specific
 		rightFrontMotor = new WPI_TalonSRX(3); 
 		rightRearMotor = new WPI_TalonSRX(2);
 		leftFrontMotor = new WPI_TalonSRX(1);
