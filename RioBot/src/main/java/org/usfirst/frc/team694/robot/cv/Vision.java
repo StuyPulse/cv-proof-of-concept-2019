@@ -2,6 +2,8 @@ package org.usfirst.frc.team694.robot.cv;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Vector;
 
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
@@ -25,6 +27,9 @@ public class Vision extends VisionModule {
 
     RotatedRect left = new RotatedRect();
     RotatedRect right = new RotatedRect();
+
+    Point[] leftPoints = new Point[4];
+    Point[] rightPoints = new Point[4];
 
     @Override
     public void run(Mat frame) {
@@ -74,9 +79,11 @@ public class Vision extends VisionModule {
                 left = rotatedRect;            
                 Imgproc.drawContours(rectClone, Arrays.asList(points),-1, new Scalar(255, 0, 0), 2);
                 Imgproc.putText(rectClone, rotatedRect.angle + "", rotatedRect.center, Core.FONT_HERSHEY_COMPLEX, 1, new Scalar(0, 0, 0));
+                left.points(leftPoints);
             } else {
                 right = rotatedRect;
                 Imgproc.drawContours(rectClone, Arrays.asList(points),-1, new Scalar(0, 255, 0), 2);
+                right.points(rightPoints);
             }
         }
         if (left.center.x < right.center.x) {
@@ -85,5 +92,13 @@ public class Vision extends VisionModule {
             System.out.println("Between targets");
         }
         postImage(rectClone, "Rect");
+
+        Point[] vertices = new Point[4]; 
+        RotatedRect rect = Imgproc.minAreaRect(new MatOfPoint2f(leftPoints[0], leftPoints[1], leftPoints[2], 
+        leftPoints[3], rightPoints[0], rightPoints[1], rightPoints[2], rightPoints[3]));
+        rect.points(vertices);
+        MatOfPoint points = new MatOfPoint(vertices);    
+        Imgproc.drawContours(rectClone, Arrays.asList(points), -1, new Scalar (0, 0, 255));
+        postImage(rectClone, "Overall Rectangle");
     }
 }
