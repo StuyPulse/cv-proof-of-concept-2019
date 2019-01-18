@@ -13,10 +13,6 @@ import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-// import edu.wpi.first.networktables.NetworkTable;
-// import edu.wpi.first.networktables.NetworkTableEntry;
-// import edu.wpi.first.networktables.NetworkTableInstance;
-
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
@@ -37,8 +33,6 @@ import frc.util.LimeLight;
  */
 public class Robot extends TimedRobot {
 	public static ExampleSubsystem m_subsystem = new ExampleSubsystem();
-	// public NetworkTable table;
-	// NetworkTableClient client;
 	Command m_autonomousCommand;
 	SendableChooser<Command> m_chooser = new SendableChooser<>();
 
@@ -53,11 +47,10 @@ public class Robot extends TimedRobot {
 	private DifferentialDrive differentialDrive;
 
 	// Changes the speed that the robot will turn
-	// DO NOT set lower than 30
-	private final double SPEED_DIV = 16;
-	private final double MOVE_DIV = 8;
-	private final double FORWARDS_SPEED = 0.9;
-	private final double FORWARD_AREA = 0.006;
+	private final double SPEED_DIV = 16; // Make sure to tune to robot
+	private final double MOVE_DIV = 4; // <--- Value Not Tested
+	private final double FORWARDS_SPEED = 1;
+	private final double FORWARD_AREA = 0.005;
 	private final double BACKWARD_AREA = 0.01;
 	private final boolean USE_TANK_DRIVE = false;
 
@@ -97,7 +90,7 @@ public class Robot extends TimedRobot {
 		differentialDrive = new DifferentialDrive(leftSpeedController, rightSpeedController);
 
 		// Be able to read from controller
-		controller = new Gamepad(0 /* TODO: find port number */);
+		controller = new Gamepad(0);
 	}
 
 	/**
@@ -107,7 +100,6 @@ public class Robot extends TimedRobot {
 	 */
 	@Override
 	public void disabledInit() {
-
 	}
 
 	@Override
@@ -180,38 +172,32 @@ public class Robot extends TimedRobot {
 		final double TURN_VAL = capValue(X / SPEED_DIV);
 		final double AREA = LimeLight.getTargetArea();
 
-		final boolean RIGHT_BUTTON = controller.getRawRightButton();
-		final boolean BOTTOM_BUTTON = controller.getRawBottomButton();
-
 		// Post to smart dashboard periodically
 		SmartDashboard.putNumber("X Offset", X);
 		SmartDashboard.putNumber("Y Offset", Y);
 		SmartDashboard.putNumber("Target Area", AREA);
 		SmartDashboard.putNumber("Turn Value", TURN_VAL);
 
-		SmartDashboard.putBoolean("Right Button Pressed", RIGHT_BUTTON);
-		SmartDashboard.putBoolean("Bottom Button Pressed", BOTTOM_BUTTON);
-
-		SmartDashboard.putNumber("Left Stick", controller.getLeftY());
-		SmartDashboard.putNumber("Right Stick", controller.getRightY());
-
 		if(USE_TANK_DRIVE) {
 			differentialDrive.tankDrive(controller.getLeftY(), controller.getRightY());
-		} else if (RIGHT_BUTTON) {
+			SmartDashboard.putNumber("Left Stick", controller.getLeftY());
+			SmartDashboard.putNumber("Right Stick", controller.getRightY());
+		} else if (controller.getRawRightButton()) {
+			// Move backwards first for saftey reasons
 			if (AREA > BACKWARD_AREA) {
 				// If area is too big, its too close, move backwards
 				SmartDashboard.putString("Driving Status", "Backwards (" + AREA + " / " + BACKWARD_AREA + ")");
 				differentialDrive.tankDrive(-FORWARDS_SPEED, -FORWARDS_SPEED);
-				// differentialDrive.tankDrive(capValue(-0.75 + TURN_VAL / MOVE_DIV),
-				// capValue(-0.75 - TURN_VAL / MOVE_DIV));
-			} else if (AREA < FORWARD_AREA) {
+			} else if (AREA < FORWARD_AREA && AREA != 0) {
 				// If area is too small, its too far, move forwarclosed
 				SmartDashboard.putString("Driving Status", "Forwards (" + FORWARD_AREA + "/" + AREA + ")");
 				differentialDrive.tankDrive(FORWARDS_SPEED, FORWARDS_SPEED);
+				
+				// \/ TURNING WHILE MOVING \/
 				// differentialDrive.tankDrive(capValue(0.75 + TURN_VAL / MOVE_DIV),
 				// capValue(0.75 - TURN_VAL / MOVE_DIV));
 			}
-		} else if (BOTTOM_BUTTON) {
+		} else if (controller.getRawBottomButton()) {
 			// Turn the tank drive
 			SmartDashboard.putString("Driving Status", "Turning (" + TURN_VAL + ")");
 			differentialDrive.tankDrive(TURN_VAL, -TURN_VAL);
