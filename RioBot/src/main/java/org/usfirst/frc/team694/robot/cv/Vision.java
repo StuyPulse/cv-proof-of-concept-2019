@@ -56,7 +56,7 @@ public class Vision extends VisionModule {
         Core.bitwise_and(hue, saturation, filtered);
         postImage(filtered, "Filtered Image");
 
-        Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(3, 3));
+        Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(5, 5));
         Imgproc.erode(filtered, filtered, kernel);
         postImage(filtered, "Eroded");
         
@@ -100,5 +100,13 @@ public class Vision extends VisionModule {
         MatOfPoint points = new MatOfPoint(vertices);    
         Imgproc.drawContours(rectClone, Arrays.asList(points), -1, new Scalar (0, 0, 255));
         postImage(rectClone, "Overall Rectangle");
+    }
+
+    public enum Turn {
+        LEFT, RIGHT, CENTER
+    }
+
+    public Turn getTurn() {
+        //Point center = new Point(, y)
     }
 }
