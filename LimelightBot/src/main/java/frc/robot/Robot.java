@@ -52,7 +52,7 @@ public class Robot extends TimedRobot {
 	private final double TURN_DIV = 16; // Make sure to tune to robot
 	private final double MOVE_TURN_DIV = 2;
 
-	private final double FORWARD_AREA = 0.016; // Make sure to tune to target
+	private final double FORWARD_AREA = 0.01; // Make sure to tune to target
 
 	private final double BACKWARD_AREA = 0.02; // Backup value
 
@@ -199,7 +199,13 @@ public class Robot extends TimedRobot {
 				final double MOVE_SPEED = (FORWARD_AREA - AREA) * SPEED; // Change Speed
 				differentialDrive.tankDrive(capValue(MOVE_SPEED + TURN_VAL / MOVE_TURN_DIV),
 						capValue(MOVE_SPEED - TURN_VAL / MOVE_TURN_DIV));
-			}
+			} else { 
+				// Turn the tank drive
+				SmartDashboard.putString("Driving Status", "Turning (" + TURN_VAL + ")");
+				differentialDrive.tankDrive(TURN_VAL, -TURN_VAL);
+	
+				LimeLight.setCamMode(LimeLight.CAM_MODE.VISION);
+			} 
 
 			LimeLight.setCamMode(LimeLight.CAM_MODE.VISION);
 		} else if (controller.getRawBottomButton()) {
