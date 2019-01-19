@@ -13,6 +13,8 @@ import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
+import java.awt.geom.Area;
+
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
@@ -47,12 +49,14 @@ public class Robot extends TimedRobot {
 	private DifferentialDrive differentialDrive;
 
 	// Changes the speed that the robot will turn
-	private final double SPEED_DIV = 16; // Make sure to tune to robot
-	private final double MOVE_DIV = 4; // <--- Value Not Tested
-	private final double FORWARDS_SPEED = 1;
-	private final double FORWARD_AREA = 0.005;
-	private final double BACKWARD_AREA = 0.01;
-	private final boolean USE_TANK_DRIVE = false;
+	private final double TURN_DIV = 16; // Make sure to tune to robot
+	private final double MOVE_TURN_DIV = 2;
+
+	private final double FORWARD_AREA = 0.016; // Make sure to tune to target
+
+	private final double BACKWARD_AREA = 0.02; // Backup value
+
+	private final double SPEED = 1 / FORWARD_AREA * 2;
 
 	Gamepad controller;
 
@@ -71,7 +75,7 @@ public class Robot extends TimedRobot {
 
 		// Initialize Motors (HAD TO BE REWIRED)
 		// Looks random, but this is very specific
-		rightFrontMotor = new WPI_TalonSRX(3); 
+		rightFrontMotor = new WPI_TalonSRX(3);
 		rightRearMotor = new WPI_TalonSRX(2);
 		leftFrontMotor = new WPI_TalonSRX(1);
 		leftRearMotor = new WPI_TalonSRX(4);
@@ -82,7 +86,7 @@ public class Robot extends TimedRobot {
 		leftFrontMotor.setInverted(true);
 		leftRearMotor.setInverted(true);
 
-		// Group Motors
+		// Geriodicallyroup Motors
 		rightSpeedController = new SpeedControllerGroup(rightFrontMotor, rightRearMotor);
 		leftSpeedController = new SpeedControllerGroup(leftFrontMotor, leftRearMotor);
 
@@ -169,7 +173,7 @@ public class Robot extends TimedRobot {
 		// Recieve data from lime light
 		final double X = LimeLight.getTargetXOffset();
 		final double Y = LimeLight.getTargetYOffset();
-		final double TURN_VAL = capValue(X / SPEED_DIV);
+		final double TURN_VAL = capValue(X / TURN_DIV);
 		final double AREA = LimeLight.getTargetArea();
 
 		// Post to smart dashboard periodically
@@ -178,33 +182,47 @@ public class Robot extends TimedRobot {
 		SmartDashboard.putNumber("Target Area", AREA);
 		SmartDashboard.putNumber("Turn Value", TURN_VAL);
 
-		if(USE_TANK_DRIVE) {
-			differentialDrive.tankDrive(controller.getLeftY(), controller.getRightY());
-			SmartDashboard.putNumber("Left Stick", controller.getLeftY());
-			SmartDashboard.putNumber("Right Stick", controller.getRightY());
-		} else if (controller.getRawRightButton()) {
+		if (controller.getRawRightButton()) {
 			// Move backwards first for saftey reasons
 			if (AREA > BACKWARD_AREA) {
 				// If area is too big, its too close, move backwards
-				SmartDashboard.putString("Driving Status", "Backwards (" + AREA + " / " + BACKWARD_AREA + ")");
-				differentialDrive.tankDrive(-FORWARDS_SPEED, -FORWARDS_SPEED);
+				SmartDashboard.putString("Driving Status", "Backwards");
+
+				// \/ TURNING WHILE MOVING \/
+				differentialDrive.tankDrive(capValue(-0.75 + TURN_VAL / MOVE_TURN_DIV),
+						capValue(-0.75 - TURN_VAL / MOVE_TURN_DIV));
 			} else if (AREA < FORWARD_AREA && AREA != 0) {
 				// If area is too small, its too far, move forwarclosed
-				SmartDashboard.putString("Driving Status", "Forwards (" + FORWARD_AREA + "/" + AREA + ")");
-				differentialDrive.tankDrive(FORWARDS_SPEED, FORWARDS_SPEED);
-				
+				SmartDashboard.putString("Driving Status", "Forwards");
+
 				// \/ TURNING WHILE MOVING \/
-				// differentialDrive.tankDrive(capValue(0.75 + TURN_VAL / MOVE_DIV),
-				// capValue(0.75 - TURN_VAL / MOVE_DIV));
+				final double MOVE_SPEED = (FORWARD_AREA - AREA) * SPEED; // Change Speed
+				differentialDrive.tankDrive(capValue(MOVE_SPEED + TURN_VAL / MOVE_TURN_DIV),
+						capValue(MOVE_SPEED - TURN_VAL / MOVE_TURN_DIV));
 			}
+
+			LimeLight.setCamMode(LimeLight.CAM_MODE.VISION);
 		} else if (controller.getRawBottomButton()) {
 			// Turn the tank drive
 			SmartDashboard.putString("Driving Status", "Turning (" + TURN_VAL + ")");
 			differentialDrive.tankDrive(TURN_VAL, -TURN_VAL);
+
+			LimeLight.setCamMode(LimeLight.CAM_MODE.VISION);
+		} else if (controller.getRawLeftButton()) {
+			SmartDashboard.putString("Driving Status", "Vision Mode");
+
+			LimeLight.setCamMode(LimeLight.CAM_MODE.VISION);
 		} else {
-			// Disable Tank Drive
-			SmartDashboard.putString("Driving Status", "Disabled (No Buttons Pressed)");
-			differentialDrive.tankDrive(0, 0);
+			final double LEFT = controller.getLeftY();
+			final double RIGHT = controller.getRightY();
+
+			// Cube Inputs
+			differentialDrive.tankDrive(-LEFT * LEFT * LEFT, -RIGHT * RIGHT * RIGHT);
+			SmartDashboard.putNumber("Left Stick", LEFT);
+			SmartDashboard.putNumber("Right Stick", RIGHT);
+			SmartDashboard.putString("Driving Status", "Drive Train");
+
+			LimeLight.setCamMode(LimeLight.CAM_MODE.DRIVER);
 		}
 	}
 
