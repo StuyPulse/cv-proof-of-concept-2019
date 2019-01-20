@@ -30,7 +30,7 @@ public class FilterVision {
     MatOfPoint leftPointsMat;
     MatOfPoint rightPointsMat;
 
-    public Turn filter(DeviceCaptureSource cam) {
+    public double filter(DeviceCaptureSource cam) {
 
         System.out.println("Bumper pressed");
         LocalDateTime time = LocalDateTime.now();
@@ -134,22 +134,12 @@ public class FilterVision {
         Imgcodecs.imwrite("/tmp/" + localtime + "overall.png", rectClone);
 
         return getTurn(rectClone, overallRect);
-    }
-        frame.release();  
-        return Turn.NO_TARGET;
+        }
+        return 10000000000.0;
     }  
 
-    public Turn getTurn(Mat frame, RotatedRect rect) {
+    public double getTurn(Mat frame, RotatedRect rect) {
         Point centerPoint = new Point(frame.width() / 2, frame.height() / 2);
-        if (Math.abs(centerPoint.x - rect.center.x) < 10) {
-            System.out.println("Center");
-            return Turn.CENTER;
-        } else if (centerPoint.x > rect.center.x) {
-            System.out.println("Too left");
-            return Turn.TOO_LEFT;
-        } else {
-            System.out.println("Too right");
-            return Turn.TOO_RIGHT;
-        }
+        return (rect.center.x - centerPoint.x);
     }
 }
