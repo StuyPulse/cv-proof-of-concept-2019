@@ -3,6 +3,7 @@
 package frc.util;
 
 import frc.util.NetworkTableClient;
+import edu.wpi.first.wpilibj.drive.Vector2d; // Returning Goal Cordinates
 
 public class LimeLight {
   // Network Table used to contact Lime Light
@@ -32,6 +33,14 @@ public class LimeLight {
   // Calculate Distance using TY
   public static double getTargetDistance(double HeightFromCamera) {
     return HeightFromCamera / Math.tan(Math.toRadians(getTargetYOffset()));
+  }
+
+  // Calculate Cordinates using Distance as the radius of a circle
+  // and using TX to get which point of the circle it is
+  public static Vector2d getTargetCordinates(double HeightFromCamera) {
+    final double DISTANCE = getTargetDistance(HeightFromCamera);
+    final double XOFFSET = Math.toRadians(getTargetXOffset());
+    return new Vector2d(DISTANCE * Math.sin(XOFFSET), DISTANCE * Math.cos(XOFFSET));
   }
 
   // Target Area (0% of image to 100% of image)
@@ -70,11 +79,15 @@ public class LimeLight {
   }
 
   // Horizontal sidelength of the rough bounding box (0 - 320 pixels)
+  public static final double MIN_HORIZ_SIDE_LENGTH = 0;
+  public static final double MAX_HORIZ_SIDE_LENGTH = 320;
   public static double getHorizontalSidelength() {
     return table.getDouble("thoriz");
   }
 
   // Vertical sidelength of the rough bounding box (0 - 320 pixels)
+  public static final double MIN_VIRT_SIDE_LENGTH = 0;
+  public static final double MAX_VIRT_SIDE_LENGTH = 320;
   public static double getVirticalSidelength() {
     return table.getDouble("tvert");
   }
@@ -169,11 +182,6 @@ public class LimeLight {
   // Raw Screenspace Y
   public static double getTargetYOffset(int Target) {
     return table.getDouble("ty" + Integer.toString(Target));
-  }
-
-  // Calculate Distance using Raw TY
-  public static double getTargetDistance(double HeightFromCamera, int Target) {
-    return HeightFromCamera / Math.tan(Math.toRadians(getTargetYOffset(Target)));
   }
 
   // Area (0% of image to 100% of image)
