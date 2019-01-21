@@ -37,12 +37,15 @@ public class LimeLight {
     return HeightFromCamera / Math.tan(Math.toRadians(getTargetYOffset()));
   }
 
-  // Calculate Coordinates using Distance as the radius of a circle
-  // and using TX to get which point of the circle it is
+  // Coordinates of limelight relative to the center of the robot
+  // This is necessary to make MP easier
+  public static final double LIMELIGHT_X_POS = 0;
+  public static final double LIMELIGHT_Y_POS = 0;
+
   public static Vector2d getTargetCoordinates(double HeightFromCamera) {
     final double DISTANCE = getTargetDistance(HeightFromCamera);
     final double XOFFSET = Math.toRadians(getTargetXOffset());
-    return new Vector2d(DISTANCE * Math.sin(XOFFSET), DISTANCE * Math.cos(XOFFSET));
+    return new Vector2d(DISTANCE * Math.sin(XOFFSET) - LIMELIGHT_X_POS, DISTANCE * Math.cos(XOFFSET) - LIMELIGHT_Y_POS);
   }
 
   // Target Area (0% of image to 100% of image)
