@@ -28,6 +28,11 @@ public class LimeLight {
   public static double getTargetYOffset() {
     return table.getDouble("ty");
   }
+  
+  // Calculate Distance using TY
+  public static double getTargetDistance(double HeightFromCamera) {
+    return HeightFromCamera / Math.tan(Math.toRadians(getTargetYOffset()));
+  }
 
   // Target Area (0% of image to 100% of image)
   public static final double MIN_TARGET_AREA = 0;
@@ -164,6 +169,11 @@ public class LimeLight {
   // Raw Screenspace Y
   public static double getTargetYOffset(int Target) {
     return table.getDouble("ty" + Integer.toString(Target));
+  }
+
+  // Calculate Distance using Raw TY
+  public static double getTargetDistance(double HeightFromCamera, int Target) {
+    return HeightFromCamera / Math.tan(Math.toRadians(getTargetYOffset(Target)));
   }
 
   // Area (0% of image to 100% of image)
