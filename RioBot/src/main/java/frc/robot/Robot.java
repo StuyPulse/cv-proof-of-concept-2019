@@ -9,9 +9,15 @@ package frc.robot;
 
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
+import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.command.Scheduler;
+import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.cv.Camera;
+import frc.robot.cv.FilterVision;
+import stuyvision.capture.DeviceCaptureSource;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -26,7 +32,22 @@ public class Robot extends TimedRobot {
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
 
-  private WPI_TalonSRX motor;
+  private static FilterVision vision;
+  private static OI oi;
+  private static DeviceCaptureSource cam;
+
+  private WPI_TalonSRX leftFrontMotor;
+	private WPI_TalonSRX rightFrontMotor;
+	private WPI_TalonSRX leftRearMotor;
+	private WPI_TalonSRX rightRearMotor;
+
+	private SpeedControllerGroup leftSpeedController;
+	private SpeedControllerGroup rightSpeedController;
+
+  private DifferentialDrive differentialDrive;
+  
+  private final double TURN_DIV = 16;
+
   /**
    * This function is run when the robot is first started up and should be
    * used for any initialization code.
@@ -36,6 +57,25 @@ public class Robot extends TimedRobot {
     m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
     m_chooser.addOption("My Auto", kCustomAuto);
     SmartDashboard.putData("Auto choices", m_chooser);
+    rightFrontMotor = new WPI_TalonSRX(3);
+		rightRearMotor = new WPI_TalonSRX(2);
+		leftFrontMotor = new WPI_TalonSRX(1);
+		leftRearMotor = new WPI_TalonSRX(4);
+
+		rightFrontMotor.setInverted(true);
+		rightRearMotor.setInverted(true);
+		leftFrontMotor.setInverted(true);
+		leftRearMotor.setInverted(true);
+
+		rightSpeedController = new SpeedControllerGroup(rightFrontMotor, rightRearMotor);
+    leftSpeedController = new SpeedControllerGroup(leftFrontMotor, leftRearMotor);
+    
+    differentialDrive = new DifferentialDrive(leftSpeedController, rightSpeedController);
+
+    oi = new OI();
+    cam = Camera.initializeCamera(0);
+
+    vision = new FilterVision();
   }
 
   /**
@@ -84,11 +124,25 @@ public class Robot extends TimedRobot {
     }
   }
 
+  private double capValue(double input) {
+    return Math.min(Math.max(input, -1), 1);
+  }
   /**
    * This function is called periodically during operator control.
    */
   @Override
   public void teleopPeriodic() {
+
+    final double x = vision.filter(cam);
+    final double TURN_VAL = capValue(x / TURN_DIV);
+
+    Scheduler.getInstance().run();
+		//System.out.println(System.getProperty("java.library.path"));
+		//ModuleRunner runner = new ModuleRunner(5);
+		if (oi.gamepad.getRawLeftBumper() && (10 < Math.abs(x)) && (Math.abs(x) < 100000)) {
+      System.out.println(x);
+      differentialDrive.tankDrive(-TURN_VAL, TURN_VAL);
+    }
   }
 
   /**
