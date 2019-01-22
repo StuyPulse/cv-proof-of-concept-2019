@@ -13,9 +13,6 @@ import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-import java.awt.geom.Area;
-
-import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
@@ -51,6 +48,8 @@ public class Robot extends TimedRobot {
 	// Changes the speed that the robot will turn
 	private final double TURN_DIV = 16; // Make sure to tune to robot
 	private final double MOVE_TURN_DIV = 2;
+
+	private final double MAX_DRIVE_ANGLE = 16;
 
 	private final double FORWARD_AREA = 0.01; // Make sure to tune to target
 
@@ -184,14 +183,14 @@ public class Robot extends TimedRobot {
 
 		if (controller.getRawRightButton()) {
 			// Move backwards first for saftey reasons
-			if (AREA > BACKWARD_AREA) {
+			if (AREA > BACKWARD_AREA && Math.abs(X) < MAX_DRIVE_ANGLE) {
 				// If area is too big, its too close, move backwards
 				SmartDashboard.putString("Driving Status", "Backwards");
 
 				// \/ TURNING WHILE MOVING \/
 				differentialDrive.tankDrive(capValue(-0.75 + TURN_VAL / MOVE_TURN_DIV),
 						capValue(-0.75 - TURN_VAL / MOVE_TURN_DIV));
-			} else if (AREA < FORWARD_AREA && AREA != 0) {
+			} else if (AREA < FORWARD_AREA && Math.abs(X) < MAX_DRIVE_ANGLE && AREA != 0) {
 				// If area is too small, its too far, move forwarclosed
 				SmartDashboard.putString("Driving Status", "Forwards");
 
