@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.cv.Camera;
 import frc.robot.cv.FilterVision;
+import stuyvision.ModuleRunner;
 import stuyvision.capture.DeviceCaptureSource;
 
 /**
@@ -108,6 +109,16 @@ public class Robot extends TimedRobot {
     System.out.println("Auto selected: " + m_autoSelected);
   }
 
+  @Override
+  public void disabledInit() {
+    super.disabledInit();
+  }
+
+  @Override
+  public void disabledPeriodic() {
+    super.disabledPeriodic();
+  }
+
   /**
    * This function is called periodically during autonomous.
    */
@@ -137,9 +148,10 @@ public class Robot extends TimedRobot {
     final double TURN_VAL = capValue(x / TURN_DIV);
 
     Scheduler.getInstance().run();
-		//System.out.println(System.getProperty("java.library.path"));
-		//ModuleRunner runner = new ModuleRunner(5);
+		System.out.println(System.getProperty("java.library.path"));
+		ModuleRunner runner = new ModuleRunner(5);
 		if (oi.gamepad.getRawLeftBumper() && (10 < Math.abs(x)) && (Math.abs(x) < 100000)) {
+      System.out.println("Bumper pressed");
       System.out.println(x);
       differentialDrive.tankDrive(-TURN_VAL, TURN_VAL);
     }

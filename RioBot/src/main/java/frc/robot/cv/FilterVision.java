@@ -32,7 +32,7 @@ public class FilterVision {
 
     public double filter(DeviceCaptureSource cam) {
 
-        System.out.println("Bumper pressed");
+        //System.out.println("Bumper pressed");
         LocalDateTime time = LocalDateTime.now();
         String localtime = time.toString();
         Mat frame = Camera.getImage(cam);
@@ -68,31 +68,23 @@ public class FilterVision {
         Imgproc.drawContours(contourClone, contours, -1, new Scalar(0, 255, 0), 1);
         //Imgcodecs.imwrite("/tmp/" + localtime + "contours.png", filtered);
 
-        for (MatOfPoint x : contours) {
-        RotatedRect rotatedRect = Imgproc.minAreaRect(new MatOfPoint2f(x.toArray()));
-        Point[] vertices = new Point[4];
-        rotatedRect.points(vertices);
-        MatOfPoint points = new MatOfPoint(vertices);
-        Imgproc.drawContours(rectClone, Arrays.asList(points),-1, new Scalar(0, 255, 0), 2);
-        }
-        //Imgcodecs.imwrite("/tmp/" + localtime + "rect.png", rectClone);
+        if (contours.size() > 2) {
+        contours.sort(new Comparator<MatOfPoint>() {
+            @Override
+            public int compare(MatOfPoint m1, MatOfPoint m2) {
+                RotatedRect rect1 = Imgproc.minAreaRect(new MatOfPoint2f(m1.toArray()));
+                RotatedRect rect2 = Imgproc.minAreaRect(new MatOfPoint2f(m2.toArray()));
 
-            contours.sort((Comparator<? super MatOfPoint>) new Comparator<MatOfPoint>() {
-                @Override
-                public int compare(MatOfPoint m1, MatOfPoint m2) {
-                    RotatedRect rect1 = Imgproc.minAreaRect(new MatOfPoint2f(m1.toArray()));
-                    RotatedRect rect2 = Imgproc.minAreaRect(new MatOfPoint2f(m2.toArray()));
-
-                    if (rect1.size.area() < rect2.size.area()) {
-                        return -1;
-                    } else if (rect2.size.area() > rect1.size.area()) {
-                        return 1;
-                    } else {
-                        return 0;
-                    }
+                if (rect1.size.area() < rect2.size.area()) {
+                    return -1;
+                } else if (rect2.size.area() > rect1.size.area()) {
+                    return 1;
+                } else {
+                    return 0;
                 }
+            }
         });
-    
+
         Collections.reverse(contours);
     
         RotatedRect rect = Imgproc.minAreaRect(new MatOfPoint2f(contours.get(0).toArray()));
@@ -133,8 +125,16 @@ public class FilterVision {
     
         Imgcodecs.imwrite("/tmp/" + localtime + "overall.png", rectClone);
 
+        frame.release();
+        saturation.release();
+        hue.release();
+        filtered.release();
+        contourClone.release();
         return getTurn(rectClone, overallRect);
+            }
         }
+        System.out.println("No target found");
+        frame.release();
         return 10000000000.0;
     }  
 
