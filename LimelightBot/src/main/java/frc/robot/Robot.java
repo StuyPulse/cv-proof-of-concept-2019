@@ -46,7 +46,7 @@ public class Robot extends TimedRobot {
 	private DifferentialDrive differentialDrive;
 
 	// Changes the speed that the robot will turn
-	private final double TURN_DIV = 16; // Make sure to tune to robot
+	private final double TURN_DIV = 20; // Make sure to tune to robot
 	private final double MOVE_TURN_DIV = 2;
 
 	private final double MAX_DRIVE_ANGLE = 16;
