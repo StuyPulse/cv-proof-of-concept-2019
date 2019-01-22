@@ -49,12 +49,16 @@ public class Robot extends TimedRobot {
 	private final double TURN_DIV = 20; // Make sure to tune to robot
 	private final double MOVE_TURN_DIV = 2;
 
+	// Angle at which moving forward will move target out of sight
 	private final double MAX_DRIVE_ANGLE = 16;
 
+	// Area at which robot will move forward
 	private final double FORWARD_AREA = 0.01; // Make sure to tune to target
 
+	// Area at which robot will move backwards
 	private final double BACKWARD_AREA = 0.02; // Backup value
 
+	// Used like: (FORWARD_AREA - CURRENT_AREA) * SPEED
 	private final double SPEED = 1 / FORWARD_AREA * 2;
 
 	Gamepad controller;
@@ -174,6 +178,7 @@ public class Robot extends TimedRobot {
 		final double Y = LimeLight.getTargetYOffset();
 		final double TURN_VAL = capValue(X / TURN_DIV);
 		final double AREA = LimeLight.getTargetArea();
+		final boolean VALID_TARGET = LimeLight.hasValidTarget();
 
 		// Post to smart dashboard periodically
 		SmartDashboard.putNumber("X Offset", X);
@@ -181,34 +186,26 @@ public class Robot extends TimedRobot {
 		SmartDashboard.putNumber("Target Area", AREA);
 		SmartDashboard.putNumber("Turn Value", TURN_VAL);
 
-		if (controller.getRawRightButton()) {
-			// Move backwards first for saftey reasons
+		if (controller.getRawRightButton() && VALID_TARGET) {
 			if (AREA > BACKWARD_AREA && Math.abs(X) < MAX_DRIVE_ANGLE) {
-				// If area is too big, its too close, move backwards
 				SmartDashboard.putString("Driving Status", "Backwards");
 
-				// \/ TURNING WHILE MOVING \/
 				differentialDrive.tankDrive(capValue(-0.75 + TURN_VAL / MOVE_TURN_DIV),
 						capValue(-0.75 - TURN_VAL / MOVE_TURN_DIV));
-			} else if (AREA < FORWARD_AREA && Math.abs(X) < MAX_DRIVE_ANGLE && AREA != 0) {
-				// If area is too small, its too far, move forwarclosed
+			} else if (AREA < FORWARD_AREA && Math.abs(X) < MAX_DRIVE_ANGLE) {
 				SmartDashboard.putString("Driving Status", "Forwards");
 
-				// \/ TURNING WHILE MOVING \/
-				final double MOVE_SPEED = (FORWARD_AREA - AREA) * SPEED; // Change Speed
+				final double MOVE_SPEED = (FORWARD_AREA - AREA) * SPEED;
 				differentialDrive.tankDrive(capValue(MOVE_SPEED + TURN_VAL / MOVE_TURN_DIV),
 						capValue(MOVE_SPEED - TURN_VAL / MOVE_TURN_DIV));
-			} else { 
-				// Turn the tank drive
+			} else {
+				// If target is close enough, switch to in place turning
 				SmartDashboard.putString("Driving Status", "Turning (" + TURN_VAL + ")");
 				differentialDrive.tankDrive(TURN_VAL, -TURN_VAL);
-	
-				LimeLight.setCamMode(LimeLight.CAM_MODE.VISION);
-			} 
+			}
 
 			LimeLight.setCamMode(LimeLight.CAM_MODE.VISION);
-		} else if (controller.getRawBottomButton()) {
-			// Turn the tank drive
+		} else if (controller.getRawBottomButton() && VALID_TARGET) {
 			SmartDashboard.putString("Driving Status", "Turning (" + TURN_VAL + ")");
 			differentialDrive.tankDrive(TURN_VAL, -TURN_VAL);
 
