@@ -187,19 +187,32 @@ public class Robot extends TimedRobot {
 
 		// Drive forwards and turn automatically
 		if (controller.getRawRightButton()) {
+			/**
+			 * "Math.abs(X) < MAX_DRIVE_ANGLE"
+			 * This line is responsible for making sure the robot
+			 * does not move forward when the robot is at an angle
+			 * that is too extreme
+			 */
+
+			// If area is too big, move backwards
 			if (AREA > BACKWARD_AREA && Math.abs(X) < MAX_DRIVE_ANGLE) {
 				SmartDashboard.putString("Driving Status", "Backwards");
 
 				differentialDrive.tankDrive(capValue(-0.75 + TURN_VAL / MOVE_TURN_DIV),
 						capValue(-0.75 - TURN_VAL / MOVE_TURN_DIV));
-			} else if (AREA < FORWARD_AREA && Math.abs(X) < MAX_DRIVE_ANGLE && AREA != 0) {
+			} 
+			
+			// If area is too small, move forwards
+			else if (AREA < FORWARD_AREA && Math.abs(X) < MAX_DRIVE_ANGLE && AREA != 0) {
 				SmartDashboard.putString("Driving Status", "Forwards");
 
 				final double MOVE_SPEED = (FORWARD_AREA - AREA) * SPEED;
 				differentialDrive.tankDrive(capValue(MOVE_SPEED + TURN_VAL / MOVE_TURN_DIV),
 						capValue(MOVE_SPEED - TURN_VAL / MOVE_TURN_DIV));
-			} else {
-				// If target is close enough, switch to in place turning
+			} 
+			
+			// If the target is at the perfect distance, do a horizontal allign 
+			else {
 				SmartDashboard.putString("Driving Status", "Turning (" + TURN_VAL + ")");
 				differentialDrive.tankDrive(TURN_VAL, -TURN_VAL);
 			}
@@ -215,40 +228,32 @@ public class Robot extends TimedRobot {
 			LimeLight.setCamMode(LimeLight.CAM_MODE.VISION);
 		}
 
-		// Show CV data
-		else if (controller.getRawLeftButton()) {
-			SmartDashboard.putString("Driving Status", "Vision Mode");
-
-			LimeLight.setCamMode(LimeLight.CAM_MODE.VISION);
-		}
-
-		// Tank Drive with aim assist
-		else if (controller.getRawLeftTrigger()) {
-			final double LEFT = controller.getLeftY();
-			final double RIGHT = controller.getRightY();
-
-			// Cube Inputs and add turning values
-			differentialDrive.tankDrive(capValue(-LEFT * LEFT * LEFT + TURN_VAL / MOVE_TURN_DIV),
-										capValue(-RIGHT * RIGHT * RIGHT - TURN_VAL / MOVE_TURN_DIV));
-			SmartDashboard.putNumber("Left Stick", LEFT);
-			SmartDashboard.putNumber("Right Stick", RIGHT);
-			SmartDashboard.putString("Driving Status", "Drive Train (Auto Aim)");
-
-			LimeLight.setCamMode(LimeLight.CAM_MODE.VISION);
-		}
-
 		// Tank Drive
 		else {
-			final double LEFT = controller.getLeftY();
-			final double RIGHT = controller.getRightY();
+			final double LEFT = -Math.pow(controller.getLeftY(), 3);
+			final double RIGHT = -Math.pow(controller.getRightY(), 3);
 
-			// Cube Inputs
-			differentialDrive.tankDrive(-LEFT * LEFT * LEFT, -RIGHT * RIGHT * RIGHT);
 			SmartDashboard.putNumber("Left Stick", LEFT);
 			SmartDashboard.putNumber("Right Stick", RIGHT);
-			SmartDashboard.putString("Driving Status", "Drive Train");
 
-			LimeLight.setCamMode(LimeLight.CAM_MODE.DRIVER);
+			// Cube Inputs
+			if (controller.getRawRightTrigger()) {
+				// Add auto aim to the tank drive controls
+				differentialDrive.tankDrive(capValue(LEFT + TURN_VAL / MOVE_TURN_DIV),
+						capValue(RIGHT - TURN_VAL / MOVE_TURN_DIV));
+				SmartDashboard.putString("Driving Status", "Drive Train (Auto Aim)");
+
+				LimeLight.setCamMode(LimeLight.CAM_MODE.VISION);
+			} else {
+				differentialDrive.tankDrive(LEFT, RIGHT);
+				SmartDashboard.putString("Driving Status", "Drive Train");
+
+				if (controller.getRawLeftButton()) {
+					LimeLight.setCamMode(LimeLight.CAM_MODE.VISION);
+				} else {
+					LimeLight.setCamMode(LimeLight.CAM_MODE.DRIVER);
+				}
+			}
 		}
 	}
 
