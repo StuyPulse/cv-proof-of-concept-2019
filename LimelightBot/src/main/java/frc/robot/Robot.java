@@ -46,8 +46,8 @@ public class Robot extends TimedRobot {
 	private DifferentialDrive differentialDrive;
 
 	// Changes the speed that the robot will turn
-	private final double TURN_DIV = 16; // Make sure to tune to robot
-	private final double MOVE_TURN_DIV = 1.5;
+	private final double TURN_DIV = 18; // Make sure to tune to robot
+	private final double MOVE_TURN_DIV = 2;
 
 	// Angle at which moving forward will move target out of sight
 	private final double MAX_DRIVE_ANGLE = 20;
@@ -176,7 +176,7 @@ public class Robot extends TimedRobot {
 		// Recieve data from lime light
 		final double X = LimeLight.getTargetXOffset();
 		final double Y = LimeLight.getTargetYOffset();
-		final double TURN_VAL = capValue(X / TURN_DIV);
+		final double TURN_VAL = X / TURN_DIV;
 		final double AREA = LimeLight.getTargetArea();
 
 		// Post to smart dashboard periodically
@@ -214,7 +214,7 @@ public class Robot extends TimedRobot {
 			// If the target is at the perfect distance, do a horizontal allign 
 			else {
 				SmartDashboard.putString("Driving Status", "Turning (" + TURN_VAL + ")");
-				differentialDrive.tankDrive(TURN_VAL, -TURN_VAL);
+				differentialDrive.tankDrive(capValue(TURN_VAL), capValue(-TURN_VAL));
 			}
 
 			LimeLight.setCamMode(LimeLight.CAM_MODE.VISION);
