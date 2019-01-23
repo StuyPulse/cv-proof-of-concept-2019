@@ -46,11 +46,11 @@ public class Robot extends TimedRobot {
 	private DifferentialDrive differentialDrive;
 
 	// Changes the speed that the robot will turn
-	private final double TURN_DIV = 20; // Make sure to tune to robot
-	private final double MOVE_TURN_DIV = 2;
+	private final double TURN_DIV = 16; // Make sure to tune to robot
+	private final double MOVE_TURN_DIV = 1.5;
 
 	// Angle at which moving forward will move target out of sight
-	private final double MAX_DRIVE_ANGLE = 16;
+	private final double MAX_DRIVE_ANGLE = 20;
 
 	// Area at which robot will move forward
 	private final double FORWARD_AREA = 0.01; // Make sure to tune to target
@@ -178,7 +178,6 @@ public class Robot extends TimedRobot {
 		final double Y = LimeLight.getTargetYOffset();
 		final double TURN_VAL = capValue(X / TURN_DIV);
 		final double AREA = LimeLight.getTargetArea();
-		final boolean VALID_TARGET = LimeLight.hasValidTarget();
 
 		// Post to smart dashboard periodically
 		SmartDashboard.putNumber("X Offset", X);
@@ -186,13 +185,13 @@ public class Robot extends TimedRobot {
 		SmartDashboard.putNumber("Target Area", AREA);
 		SmartDashboard.putNumber("Turn Value", TURN_VAL);
 
-		if (controller.getRawRightButton() && VALID_TARGET) {
+		if (controller.getRawRightButton()) {
 			if (AREA > BACKWARD_AREA && Math.abs(X) < MAX_DRIVE_ANGLE) {
 				SmartDashboard.putString("Driving Status", "Backwards");
 
 				differentialDrive.tankDrive(capValue(-0.75 + TURN_VAL / MOVE_TURN_DIV),
 						capValue(-0.75 - TURN_VAL / MOVE_TURN_DIV));
-			} else if (AREA < FORWARD_AREA && Math.abs(X) < MAX_DRIVE_ANGLE) {
+			} else if (AREA < FORWARD_AREA && Math.abs(X) < MAX_DRIVE_ANGLE && AREA != 0) {
 				SmartDashboard.putString("Driving Status", "Forwards");
 
 				final double MOVE_SPEED = (FORWARD_AREA - AREA) * SPEED;
@@ -205,7 +204,7 @@ public class Robot extends TimedRobot {
 			}
 
 			LimeLight.setCamMode(LimeLight.CAM_MODE.VISION);
-		} else if (controller.getRawBottomButton() && VALID_TARGET) {
+		} else if (controller.getRawBottomButton()) {
 			SmartDashboard.putString("Driving Status", "Turning (" + TURN_VAL + ")");
 			differentialDrive.tankDrive(TURN_VAL, -TURN_VAL);
 
