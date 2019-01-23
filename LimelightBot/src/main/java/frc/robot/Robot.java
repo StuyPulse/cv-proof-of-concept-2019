@@ -46,20 +46,19 @@ public class Robot extends TimedRobot {
 	private DifferentialDrive differentialDrive;
 
 	// Changes the speed that the robot will turn
-	private final double TURN_DIV = 18; // Make sure to tune to robot
-	private final double MOVE_TURN_DIV = 2;
+	private final double TURN_DIV = 32; // Make sure to tune to robot
 
 	// Angle at which moving forward will move target out of sight
 	private final double MAX_DRIVE_ANGLE = 20;
 
 	// Area at which robot will move forward
-	private final double FORWARD_AREA = 0.01; // Make sure to tune to target
+	private final double FORWARD_AREA = 0.012; // Make sure to tune to target
 
 	// Area at which robot will move backwards
 	private final double BACKWARD_AREA = 0.02; // Backup value
 
 	// Used like: (FORWARD_AREA - CURRENT_AREA) * SPEED
-	private final double SPEED = 1 / FORWARD_AREA * 2;
+	private final double SPEED = (2) / FORWARD_AREA;
 
 	Gamepad controller;
 
@@ -176,8 +175,8 @@ public class Robot extends TimedRobot {
 		// Recieve data from lime light
 		final double X = LimeLight.getTargetXOffset();
 		final double Y = LimeLight.getTargetYOffset();
-		final double TURN_VAL = X / TURN_DIV;
 		final double AREA = LimeLight.getTargetArea();
+		final double TURN_VAL = X / TURN_DIV;
 
 		// Post to smart dashboard periodically
 		SmartDashboard.putNumber("X Offset", X);
@@ -186,74 +185,62 @@ public class Robot extends TimedRobot {
 		SmartDashboard.putNumber("Turn Value", TURN_VAL);
 
 		// Drive forwards and turn automatically
-		if (controller.getRawRightButton()) {
+		if (controller.getRawTopButton()) {
 			/**
-			 * "Math.abs(X) < MAX_DRIVE_ANGLE"
-			 * This line is responsible for making sure the robot
-			 * does not move forward when the robot is at an angle
-			 * that is too extreme
+			 * "Math.abs(X) < MAX_DRIVE_ANGLE" This line is responsible for making sure the
+			 * robot does not move forward when the robot is at an angle that is too extreme
 			 */
 
+			double xSpeed = 0;
+
 			// If area is too big, move backwards
-			if (AREA > BACKWARD_AREA && Math.abs(X) < MAX_DRIVE_ANGLE) {
+			if (AREA > BACKWARD_AREA) {
 				SmartDashboard.putString("Driving Status", "Backwards");
-
-				differentialDrive.tankDrive(capValue(-0.75 + TURN_VAL / MOVE_TURN_DIV),
-						capValue(-0.75 - TURN_VAL / MOVE_TURN_DIV));
-			} 
-			
-			// If area is too small, move forwards
-			else if (AREA < FORWARD_AREA && Math.abs(X) < MAX_DRIVE_ANGLE && AREA != 0) {
-				SmartDashboard.putString("Driving Status", "Forwards");
-
-				final double MOVE_SPEED = (FORWARD_AREA - AREA) * SPEED;
-				differentialDrive.tankDrive(capValue(MOVE_SPEED + TURN_VAL / MOVE_TURN_DIV),
-						capValue(MOVE_SPEED - TURN_VAL / MOVE_TURN_DIV));
-			} 
-			
-			// If the target is at the perfect distance, do a horizontal allign 
-			else {
-				SmartDashboard.putString("Driving Status", "Turning (" + TURN_VAL + ")");
-				differentialDrive.tankDrive(capValue(TURN_VAL), capValue(-TURN_VAL));
+				xSpeed = -0.75;
 			}
 
+			// If area is too small, move forwards
+			else if (AREA < FORWARD_AREA && AREA != 0) {
+				SmartDashboard.putString("Driving Status", "Forwards");
+				xSpeed = (FORWARD_AREA - AREA) * SPEED;
+			}
+
+			// If the target is at the perfect distance, do a horizontal allign
+			else {
+				SmartDashboard.putString("Driving Status", "Turning (" + TURN_VAL + ")");
+			}
+
+			differentialDrive.curvatureDrive(xSpeed, TURN_VAL, true);
 			LimeLight.setCamMode(LimeLight.CAM_MODE.VISION);
 		}
 
-		// Turn in place
-		else if (controller.getRawBottomButton()) {
-			SmartDashboard.putString("Driving Status", "Turning (" + TURN_VAL + ")");
-			differentialDrive.tankDrive(TURN_VAL, -TURN_VAL);
-
-			LimeLight.setCamMode(LimeLight.CAM_MODE.VISION);
-		}
-
-		// Tank Drive
+		// Curvature Drive Drive
 		else {
-			final double LEFT = -Math.pow(controller.getLeftY(), 3);
-			final double RIGHT = -Math.pow(controller.getRightY(), 3);
+			final double LEFT = -Math.pow(controller.getLeftX(), 3);
 
-			SmartDashboard.putNumber("Left Stick", LEFT);
-			SmartDashboard.putNumber("Right Stick", RIGHT);
+			double xSpeed = 0, zRotation = -LEFT;
+			boolean quickTurn = true;
 
-			// Cube Inputs
-			if (controller.getRawRightTrigger()) {
+			if (controller.getRawLeftButton()) {
 				// Add auto aim to the tank drive controls
-				differentialDrive.tankDrive(capValue(LEFT + TURN_VAL / MOVE_TURN_DIV),
-						capValue(RIGHT - TURN_VAL / MOVE_TURN_DIV));
-				SmartDashboard.putString("Driving Status", "Drive Train (Auto Aim)");
+				zRotation = capValue(zRotation + TURN_VAL);
 
 				LimeLight.setCamMode(LimeLight.CAM_MODE.VISION);
 			} else {
-				differentialDrive.tankDrive(LEFT, RIGHT);
-				SmartDashboard.putString("Driving Status", "Drive Train");
-
-				if (controller.getRawLeftButton()) {
-					LimeLight.setCamMode(LimeLight.CAM_MODE.VISION);
-				} else {
-					LimeLight.setCamMode(LimeLight.CAM_MODE.DRIVER);
-				}
+				LimeLight.setCamMode(LimeLight.CAM_MODE.DRIVER);
 			}
+
+			if (controller.getRawRightTrigger()) {
+				xSpeed += 1.0;
+				quickTurn = false;
+			}
+			if (controller.getRawLeftTrigger()) {
+				xSpeed -= 1.0;
+				quickTurn = false;
+			}
+
+			differentialDrive.curvatureDrive(xSpeed, zRotation, quickTurn);
+			SmartDashboard.putString("Driving Status", "Curvature Drive");
 		}
 	}
 
