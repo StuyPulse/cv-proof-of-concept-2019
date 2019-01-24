@@ -8,12 +8,16 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.Ultrasonic;
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
+
+import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.DigitalOutput;
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 
@@ -162,26 +166,28 @@ public class Robot extends TimedRobot {
 	@Override
 	public void teleopPeriodic() {
 		Scheduler.getInstance().run();
-
 		// Recieve data from lime light
 		final double X = LimeLight.getTargetXOffset();
 		final double TURN_VAL = X / TURN_DIV;
 		final double AREA = LimeLight.getTargetArea();
-
+		final double MIN_MOVEMENT = 0.5;
 		// Drive forwards and turn automatically
 		if (controller.getRawTopButton()) {
-			if (AREA > BACKWARD_AREA) {
-				differentialDrive.curvatureDrive(-0.75, capValue(TURN_VAL), true);
-			} else if (AREA < FORWARD_AREA && AREA != 0) {
-				differentialDrive.curvatureDrive(capValue((FORWARD_AREA - AREA) * SPEED), capValue(TURN_VAL), true);
+			if (AREA != 0){
+				if(AREA > FORWARD_AREA){
+						//2X Multiplier since distance is very close
+						differentialDrive.curvatureDrive(MIN_MOVEMENT, capValue(TURN_VAL*2), true);
+				}else{
+					differentialDrive.curvatureDrive(capValue(MIN_MOVEMENT+(FORWARD_AREA - AREA) * SPEED), capValue(TURN_VAL), true);
+				}
 			}
-
 			LimeLight.setCamMode(LimeLight.CAM_MODE.VISION);
+			
 		}
 
 		// Curvature Drive
 		else {
-			double speed = 0, turn = -Math.pow(controller.getLeftX(), 3);
+			double speed = 0, turn = Math.pow(controller.getLeftX(), 3);
 			boolean quickTurn = true;
 
 			// Aim Assist
@@ -202,7 +208,8 @@ public class Robot extends TimedRobot {
 				quickTurn = false;
 			}
 
-			differentialDrive.curvatureDrive(speed, turn, quickTurn);
+			differentialDrive.curvatureDrive(speed, 
+			turn, quickTurn);
 		}
 	}
 

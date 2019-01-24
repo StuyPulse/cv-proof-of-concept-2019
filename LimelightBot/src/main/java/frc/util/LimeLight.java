@@ -100,7 +100,7 @@ public class LimeLight {
   public static final double MIN_VIRT_SIDE_LENGTH = 0;
   public static final double MAX_VIRT_SIDE_LENGTH = 320;
 
-  public static double getVirticalSidelength() {
+  public static double getVerticalSidelength() {
     return table.getDouble("tvert");
   }
 
