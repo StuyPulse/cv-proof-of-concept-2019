@@ -50,7 +50,7 @@ public class CVPath extends Command {
 
     private void updatePoints(){
         //get furthest Y point from the bot
-        if(Math.abs(Math.sin(alpha)*d1) > Math.abs(Math.sin(beta)*d2){
+        if(Math.abs(Math.sin(alpha)*d1) > Math.abs(Math.sin(beta)*d2)){
             farGoal = new Vector2d(Math.cos(alpha)*d1, Math.sin(alpha)*d1);
             nearGoal = new Vector2d(Math.cos(beta)*d2, Math.sin(beta)*d2);
             return;
@@ -81,10 +81,9 @@ public class CVPath extends Command {
         h2.y = m_h2 * (h2.x - goalPoint.x + goalPoint.y);
     }
 
-    private void getTime(double t){
-        double[] output = new Double[8];
-        fillTable();
-        ProfileQueue.add()
+    private void createPath(){
+        setPoints();
+        generatePoints();
     }
 
     private Vector2d getXY(double t) {
