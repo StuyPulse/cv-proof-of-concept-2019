@@ -9,7 +9,7 @@ public class LimeLight {
   // Network Table used to contact Lime Light
   private static NetworkTableClient table = new NetworkTableClient("limelight");
 
-  /* “Best�? Contour information */
+  /* “Best? Contour information */
   // Whether the limelight has any valid targets (0 or 1)
   public static boolean hasValidTarget() {
     // == 1 converts double to boolean

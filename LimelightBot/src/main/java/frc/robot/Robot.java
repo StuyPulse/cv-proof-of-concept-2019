@@ -147,17 +147,20 @@ public class Robot extends TimedRobot {
 
 	/* AIM ASSIST */
 	// Changes the speed that the robot will turn
-	private final double TURN_DIV = 28;
+	private final double TURN_DIV = 24;
+
+	// Changes the speed that the robot will turn
+	private final double MOVE_DIV = 2;
 
 	/* AUTO ACCELERATE VARIABLES */
 	// Area at which robot will move forward
-	private final double FORWARD_AREA = 0.014;
+	private final double FORWARD_AREA = 0.0145;
 
 	// Slowest speed for auto accelerate
 	private final double MIN_SPEED = 0.25;
 
 	// Auto Drive Speed
-	private final double SPEED = (5.0 / 4.0) / FORWARD_AREA; // Far away distance
+	private final double SPEED = 1.5 / FORWARD_AREA;
 
 	// Make sure to use when feeding values to the drive train
 	// It is safer not to send values higher than 1 or lower than -1
@@ -178,26 +181,9 @@ public class Robot extends TimedRobot {
 		// Recieve data from lime light
 		final double X = LimeLight.getTargetXOffset();
 		final double AREA = LimeLight.getTargetArea();
-		final double TURN_VAL = X / TURN_DIV;
 
 		Vector2d Coords = LimeLight.getTargetCoordinates(3.49614);
-		System.out.println("X: "+Coords.x + ", Z:" + Coords.y);
-
-		// Aim Assist
-		double turn = Math.pow(controller.getLeftX(), 3); // Left Stick
-		if (controller.getRawLeftButton() || controller.getRawTopButton()) {
-			turn = capValue(turn + TURN_VAL);
-			if (DriverMode) {
-				LimeLight.setCamMode(LimeLight.CAM_MODE.VISION);
-				DriverMode = false;
-			}
-		} else {
-			turn = capValue(turn);
-			if (!DriverMode) {
-				LimeLight.setCamMode(LimeLight.CAM_MODE.DRIVER);
-				DriverMode = true;
-			}
-		}
+		System.out.println("X: " + Coords.x + ", Y:" + Coords.y);
 
 		// Auto Accelerate
 		double speed = 0;
@@ -215,6 +201,31 @@ public class Robot extends TimedRobot {
 				speed *= 1.5; // If both are held, move at .5
 				speed -= 1.0;
 				quickTurn = false;
+			}
+		}
+
+		// Aim Assist
+		final double TURN_VAL = X / (TURN_DIV * Math.max(MOVE_DIV * speed, 1));
+		double turn = Math.pow(controller.getLeftX(), 3); // Left Stick
+		if (controller.getRawLeftButton() || controller.getRawTopButton()) {
+			turn = capValue(turn + TURN_VAL);
+			if (DriverMode) {
+				LimeLight.setCamMode(LimeLight.CAM_MODE.VISION);
+				DriverMode = false;
+			}
+		} else {
+			turn = capValue(turn);
+
+			if (controller.getRawBottomButton()) {
+				if (DriverMode) {
+					LimeLight.setCamMode(LimeLight.CAM_MODE.VISION);
+					DriverMode = false;
+				}
+			} else {
+				if (!DriverMode) {
+					LimeLight.setCamMode(LimeLight.CAM_MODE.DRIVER);
+					DriverMode = true;
+				}
 			}
 		}
 
