@@ -33,10 +33,8 @@ public class LimeLight {
   }
 
   // Calculate Distance using TY
-  public static final double LIMELIGHT_CAM_ANGLE = 0;
-
-  public static double getTargetDistance(double HeightFromCamera) {
-    return HeightFromCamera / Math.tan(Math.toRadians(getTargetYOffset() + LIMELIGHT_CAM_ANGLE));
+  public static double getTargetDistance(double HeightFromCamera, double CameraAngle) {
+    return HeightFromCamera / Math.tan(Math.toRadians(getTargetYOffset() + CameraAngle));
   }
 
   // Coordinates of limelight relative to the center of the robot
@@ -44,8 +42,8 @@ public class LimeLight {
   public static final double LIMELIGHT_X_POS = 0;
   public static final double LIMELIGHT_Y_POS = 0;
 
-  public static Vector2d getTargetCoordinates(double HeightFromCamera) {
-    final double DISTANCE = getTargetDistance(HeightFromCamera);
+  public static Vector2d getTargetCoordinates(double HeightFromCamera, double CameraAngle) {
+    final double DISTANCE = getTargetDistance(HeightFromCamera, CameraAngle);
     final double XOFFSET = Math.toRadians(getTargetXOffset());
     return new Vector2d(DISTANCE * Math.sin(XOFFSET) + LIMELIGHT_X_POS, DISTANCE * Math.cos(XOFFSET) + LIMELIGHT_Y_POS);
   }

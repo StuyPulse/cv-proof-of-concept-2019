@@ -182,8 +182,14 @@ public class Robot extends TimedRobot {
 		final double X = LimeLight.getTargetXOffset();
 		final double AREA = LimeLight.getTargetArea();
 
-		Vector2d Coords = LimeLight.getTargetCoordinates(3.49614);
-		System.out.println("X: " + Coords.x + ", Y:" + Coords.y);
+		// Distance Calculations
+		double cameraHeight = SmartDashboard.getNumber("lheight", 0); 
+		double cameraAngle = SmartDashboard.getNumber("langle", 0);
+		Vector2d Coords = LimeLight.getTargetCoordinates(cameraHeight, cameraAngle);
+		double distance = LimeLight.getTargetDistance(cameraHeight, cameraAngle);
+		SmartDashboard.putNumber("Target Distance", distance);
+		SmartDashboard.putNumber("Target X Coord", Coords.x);
+		SmartDashboard.putNumber("Target Y Coord", Coords.y);
 
 		// Auto Accelerate
 		double speed = 0;
@@ -192,6 +198,8 @@ public class Robot extends TimedRobot {
 			if (AREA != 0) {
 				speed = capValue(MIN_SPEED + Math.max(FORWARD_AREA - AREA, 0) * SPEED);
 			}
+
+			SmartDashboard.putString("Acceleration Mode", "Automatic");
 		} else {
 			if (controller.getRawRightTrigger()) {
 				speed += 1.0;
@@ -202,6 +210,8 @@ public class Robot extends TimedRobot {
 				speed -= 1.0;
 				quickTurn = false;
 			}
+
+			SmartDashboard.putString("Acceleration Mode", "Manual");
 		}
 
 		// Aim Assist
@@ -209,10 +219,13 @@ public class Robot extends TimedRobot {
 		double turn = Math.pow(controller.getLeftX(), 3); // Left Stick
 		if (controller.getRawLeftButton() || controller.getRawTopButton()) {
 			turn = capValue(turn + TURN_VAL);
+
 			if (DriverMode) {
 				LimeLight.setCamMode(LimeLight.CAM_MODE.VISION);
 				DriverMode = false;
 			}
+
+			SmartDashboard.putString("Aim/Turning Mode", "Assisted");
 		} else {
 			turn = capValue(turn);
 
@@ -227,6 +240,8 @@ public class Robot extends TimedRobot {
 					DriverMode = true;
 				}
 			}
+
+			SmartDashboard.putString("Aim/Turning Mode", "Manual");
 		}
 
 		// Feed values to drive train
