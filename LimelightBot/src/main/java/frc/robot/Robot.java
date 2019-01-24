@@ -46,10 +46,7 @@ public class Robot extends TimedRobot {
 	private DifferentialDrive differentialDrive;
 
 	// Changes the speed that the robot will turn
-	private final double TURN_DIV = 32; // Make sure to tune to robot
-
-	// Angle at which moving forward will move target out of sight
-	private final double MAX_DRIVE_ANGLE = 20;
+	private final double TURN_DIV = 50; // Make sure to tune to robot
 
 	// Area at which robot will move forward
 	private final double FORWARD_AREA = 0.012; // Make sure to tune to target
@@ -57,7 +54,7 @@ public class Robot extends TimedRobot {
 	// Area at which robot will move backwards
 	private final double BACKWARD_AREA = 0.02; // Backup value
 
-	// Used like: (FORWARD_AREA - CURRENT_AREA) * SPEED
+	// Auto Drive Speed 
 	private final double SPEED = (2) / FORWARD_AREA;
 
 	Gamepad controller;
@@ -174,51 +171,23 @@ public class Robot extends TimedRobot {
 
 		// Recieve data from lime light
 		final double X = LimeLight.getTargetXOffset();
-		final double Y = LimeLight.getTargetYOffset();
-		final double AREA = LimeLight.getTargetArea();
 		final double TURN_VAL = X / TURN_DIV;
-
-		// Post to smart dashboard periodically
-		SmartDashboard.putNumber("X Offset", X);
-		SmartDashboard.putNumber("Y Offset", Y);
-		SmartDashboard.putNumber("Target Area", AREA);
-		SmartDashboard.putNumber("Turn Value", TURN_VAL);
+		final double AREA = LimeLight.getTargetArea();
 
 		// Drive forwards and turn automatically
 		if (controller.getRawTopButton()) {
-			/**
-			 * "Math.abs(X) < MAX_DRIVE_ANGLE" This line is responsible for making sure the
-			 * robot does not move forward when the robot is at an angle that is too extreme
-			 */
-
-			double xSpeed = 0;
-
-			// If area is too big, move backwards
 			if (AREA > BACKWARD_AREA) {
-				SmartDashboard.putString("Driving Status", "Backwards");
-				xSpeed = -0.75;
+				differentialDrive.curvatureDrive(-0.75, TURN_VAL, true);
+			} else if (AREA < FORWARD_AREA && AREA != 0) {
+				differentialDrive.curvatureDrive((FORWARD_AREA - AREA) * SPEED, TURN_VAL, true);
 			}
 
-			// If area is too small, move forwards
-			else if (AREA < FORWARD_AREA && AREA != 0) {
-				SmartDashboard.putString("Driving Status", "Forwards");
-				xSpeed = (FORWARD_AREA - AREA) * SPEED;
-			}
-
-			// If the target is at the perfect distance, do a horizontal allign
-			else {
-				SmartDashboard.putString("Driving Status", "Turning (" + TURN_VAL + ")");
-			}
-
-			differentialDrive.curvatureDrive(xSpeed, TURN_VAL, true);
 			LimeLight.setCamMode(LimeLight.CAM_MODE.VISION);
 		}
 
 		// Curvature Drive Drive
 		else {
-			final double LEFT = -Math.pow(controller.getLeftX(), 3);
-
-			double xSpeed = 0, zRotation = -LEFT;
+			double xSpeed = 0, zRotation = -Math.pow(controller.getLeftX(), 3);
 			boolean quickTurn = true;
 
 			if (controller.getRawLeftButton()) {
@@ -240,7 +209,6 @@ public class Robot extends TimedRobot {
 			}
 
 			differentialDrive.curvatureDrive(xSpeed, zRotation, quickTurn);
-			SmartDashboard.putString("Driving Status", "Curvature Drive");
 		}
 	}
 
