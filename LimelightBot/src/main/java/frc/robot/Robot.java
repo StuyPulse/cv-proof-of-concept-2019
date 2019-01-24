@@ -20,7 +20,7 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DigitalOutput;
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
-
+import edu.wpi.first.wpilibj.drive.Vector2d;
 import frc.util.Gamepad;
 
 import frc.robot.commands.ExampleCommand;
@@ -180,6 +180,9 @@ public class Robot extends TimedRobot {
 		final double AREA = LimeLight.getTargetArea();
 		final double TURN_VAL = X / TURN_DIV;
 
+		Vector2d Coords = LimeLight.getTargetCoordinates(3.49614);
+		System.out.println(Coords.x+","+ Coords.y);
+
 		// Aim Assist
 		double turn = Math.pow(controller.getLeftX(), 3); // Left Stick
 		if (controller.getRawLeftButton() || controller.getRawTopButton()) {
@@ -191,7 +194,7 @@ public class Robot extends TimedRobot {
 		} else {
 			turn = capValue(turn);
 			if(!DriverMode) {
-				LimeLight.setCamMode(LimeLight.CAM_MODE.DRIVER);
+				//LimeLight.setCamMode(LimeLight.CAM_MODE.DRIVER);
 				DriverMode = true;
 			}
 		}

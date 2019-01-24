@@ -47,7 +47,7 @@ public class LimeLight {
   public static Vector2d getTargetCoordinates(double HeightFromCamera) {
     final double DISTANCE = getTargetDistance(HeightFromCamera);
     final double XOFFSET = Math.toRadians(getTargetXOffset());
-    return new Vector2d(DISTANCE * Math.sin(XOFFSET) - LIMELIGHT_X_POS, DISTANCE * Math.cos(XOFFSET) - LIMELIGHT_Y_POS);
+    return new Vector2d(DISTANCE * Math.sin(XOFFSET) + LIMELIGHT_X_POS, DISTANCE * Math.cos(XOFFSET) + LIMELIGHT_Y_POS);
   }
 
   // Target Area (0% of image to 100% of image)
