@@ -180,11 +180,8 @@ public class Robot extends TimedRobot {
 		final double AREA = LimeLight.getTargetArea();
 		final double TURN_VAL = X / TURN_DIV;
 
-		// Curvature Drive
-		double speed = 0, turn = Math.pow(controller.getLeftX(), 3);
-		boolean quickTurn = true;
-
 		// Aim Assist
+		double turn = Math.pow(controller.getLeftX(), 3); // Left Stick
 		if (controller.getRawLeftButton() || controller.getRawTopButton()) {
 			turn = capValue(turn + TURN_VAL);
 			if(DriverMode) {
@@ -200,6 +197,8 @@ public class Robot extends TimedRobot {
 		}
 
 		// Auto Accelerate
+		double speed = 0;
+		boolean quickTurn = true;
 		if(controller.getRawTopButton()) {
 			if (AREA != 0) {
 				speed = capValue(MIN_SPEED + Math.max(FORWARD_AREA - AREA, 0) * SPEED); 
@@ -216,6 +215,7 @@ public class Robot extends TimedRobot {
 			}
 		}
 
+		// Feed values to drive train
 		differentialDrive.curvatureDrive(speed, turn, quickTurn);
 	}
 
