@@ -157,7 +157,7 @@ public class Robot extends TimedRobot {
 	private final double MIN_SPEED = 0.25;
 
 	// Auto Drive Speed
-	private final double SPEED = (5.0/4.0) / FORWARD_AREA; // Far away distance
+	private final double SPEED = (5.0 / 4.0) / FORWARD_AREA; // Far away distance
 
 	// Make sure to use when feeding values to the drive train
 	// It is safer not to send values higher than 1 or lower than -1
@@ -181,20 +181,20 @@ public class Robot extends TimedRobot {
 		final double TURN_VAL = X / TURN_DIV;
 
 		Vector2d Coords = LimeLight.getTargetCoordinates(3.49614);
-		System.out.println(Coords.x+","+ Coords.y);
+		System.out.println("X: "+Coords.x + ", Z:" + Coords.y);
 
 		// Aim Assist
 		double turn = Math.pow(controller.getLeftX(), 3); // Left Stick
 		if (controller.getRawLeftButton() || controller.getRawTopButton()) {
 			turn = capValue(turn + TURN_VAL);
-			if(DriverMode) {
+			if (DriverMode) {
 				LimeLight.setCamMode(LimeLight.CAM_MODE.VISION);
 				DriverMode = false;
 			}
 		} else {
 			turn = capValue(turn);
-			if(!DriverMode) {
-				//LimeLight.setCamMode(LimeLight.CAM_MODE.DRIVER);
+			if (!DriverMode) {
+				LimeLight.setCamMode(LimeLight.CAM_MODE.DRIVER);
 				DriverMode = true;
 			}
 		}
@@ -202,9 +202,9 @@ public class Robot extends TimedRobot {
 		// Auto Accelerate
 		double speed = 0;
 		boolean quickTurn = true;
-		if(controller.getRawTopButton()) {
+		if (controller.getRawTopButton()) {
 			if (AREA != 0) {
-				speed = capValue(MIN_SPEED + Math.max(FORWARD_AREA - AREA, 0) * SPEED); 
+				speed = capValue(MIN_SPEED + Math.max(FORWARD_AREA - AREA, 0) * SPEED);
 			}
 		} else {
 			if (controller.getRawRightTrigger()) {
