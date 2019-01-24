@@ -49,18 +49,6 @@ public class Robot extends TimedRobot {
 
 	private DifferentialDrive differentialDrive;
 
-	// Changes the speed that the robot will turn
-	private final double TURN_DIV = 50; 
-
-	// Area at which robot will move forward
-	private final double FORWARD_AREA = 0.012; 
-
-	// Area at which robot will move backwards
-	private final double BACKWARD_AREA = 0.02; 
-
-	// Auto Drive Speed
-	private final double SPEED = (2) / FORWARD_AREA;
-
 	Gamepad controller;
 
 	/**
@@ -90,6 +78,9 @@ public class Robot extends TimedRobot {
 
 		// Be able to read from controller
 		controller = new Gamepad(0);
+
+		// Set Up Limelight
+		LimeLight.setCamMode(LimeLight.CAM_MODE.VISION);
 	}
 
 	/**
@@ -154,11 +145,28 @@ public class Robot extends TimedRobot {
 		}
 	}
 
+	/* AIM ASSIST */
+	// Changes the speed that the robot will turn
+	private final double TURN_DIV = 28;
+
+	/* AUTO ACCELERATE VARIABLES */
+	// Area at which robot will move forward
+	private final double FORWARD_AREA = 0.014;
+
+	// Slowest speed for auto accelerate
+	private final double MIN_SPEED = 0.25;
+
+	// Auto Drive Speed
+	private final double SPEED = (5.0/4.0) / FORWARD_AREA; // Far away distance
+
 	// Make sure to use when feeding values to the drive train
 	// It is safer not to send values higher than 1 or lower than -1
 	private double capValue(double input) {
 		return Math.min(Math.max(input, -1), 1);
 	}
+
+	// Prevent overwriting to the network table
+	private boolean DriverMode = false;
 
 	/**
 	 * This function is called periodically during operator control.
@@ -166,51 +174,49 @@ public class Robot extends TimedRobot {
 	@Override
 	public void teleopPeriodic() {
 		Scheduler.getInstance().run();
+
 		// Recieve data from lime light
 		final double X = LimeLight.getTargetXOffset();
-		final double TURN_VAL = X / TURN_DIV;
 		final double AREA = LimeLight.getTargetArea();
-		final double MIN_MOVEMENT = 0.5;
-		// Drive forwards and turn automatically
-		if (controller.getRawTopButton()) {
-			if (AREA != 0){
-				if(AREA > FORWARD_AREA){
-						//2X Multiplier since distance is very close
-						differentialDrive.curvatureDrive(MIN_MOVEMENT, capValue(TURN_VAL*2), true);
-				}else{
-					differentialDrive.curvatureDrive(capValue(MIN_MOVEMENT+(FORWARD_AREA - AREA) * SPEED), capValue(TURN_VAL), true);
-				}
-			}
-			LimeLight.setCamMode(LimeLight.CAM_MODE.VISION);
-			
-		}
+		final double TURN_VAL = X / TURN_DIV;
 
 		// Curvature Drive
-		else {
-			double speed = 0, turn = Math.pow(controller.getLeftX(), 3);
-			boolean quickTurn = true;
+		double speed = 0, turn = Math.pow(controller.getLeftX(), 3);
+		boolean quickTurn = true;
 
-			// Aim Assist
-			if (controller.getRawLeftButton()) {
-				turn = capValue(turn + TURN_VAL);
+		// Aim Assist
+		if (controller.getRawLeftButton() || controller.getRawTopButton()) {
+			turn = capValue(turn + TURN_VAL);
+			if(DriverMode) {
 				LimeLight.setCamMode(LimeLight.CAM_MODE.VISION);
-			} else {
-				turn = capValue(turn);
-				LimeLight.setCamMode(LimeLight.CAM_MODE.DRIVER);
+				DriverMode = false;
 			}
+		} else {
+			turn = capValue(turn);
+			if(!DriverMode) {
+				LimeLight.setCamMode(LimeLight.CAM_MODE.DRIVER);
+				DriverMode = true;
+			}
+		}
 
+		// Auto Accelerate
+		if(controller.getRawTopButton()) {
+			if (AREA != 0) {
+				speed = capValue(MIN_SPEED + Math.max(FORWARD_AREA - AREA, 0) * SPEED); 
+			}
+		} else {
 			if (controller.getRawRightTrigger()) {
 				speed += 1.0;
 				quickTurn = false;
 			}
 			if (controller.getRawLeftTrigger()) {
+				speed *= 1.5; // If both are held, move at .5
 				speed -= 1.0;
 				quickTurn = false;
 			}
-
-			differentialDrive.curvatureDrive(speed, 
-			turn, quickTurn);
 		}
+
+		differentialDrive.curvatureDrive(speed, turn, quickTurn);
 	}
 
 	/**
