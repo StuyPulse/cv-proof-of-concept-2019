@@ -189,6 +189,7 @@ public class Robot extends TimedRobot {
 				turn = capValue(turn + TURN_VAL);
 				LimeLight.setCamMode(LimeLight.CAM_MODE.VISION);
 			} else {
+				turn = capValue(turn);
 				LimeLight.setCamMode(LimeLight.CAM_MODE.DRIVER);
 			}
 
