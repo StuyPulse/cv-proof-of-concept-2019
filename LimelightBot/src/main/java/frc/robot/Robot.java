@@ -46,15 +46,15 @@ public class Robot extends TimedRobot {
 	private DifferentialDrive differentialDrive;
 
 	// Changes the speed that the robot will turn
-	private final double TURN_DIV = 50; // Make sure to tune to robot
+	private final double TURN_DIV = 50; 
 
 	// Area at which robot will move forward
-	private final double FORWARD_AREA = 0.012; // Make sure to tune to target
+	private final double FORWARD_AREA = 0.012; 
 
 	// Area at which robot will move backwards
-	private final double BACKWARD_AREA = 0.02; // Backup value
+	private final double BACKWARD_AREA = 0.02; 
 
-	// Auto Drive Speed 
+	// Auto Drive Speed
 	private final double SPEED = (2) / FORWARD_AREA;
 
 	Gamepad controller;
@@ -65,27 +65,19 @@ public class Robot extends TimedRobot {
 	 */
 	@Override
 	public void robotInit() {
-		// table = NetworkTableInstance.getDefault().getTable("limelight");
-
 		m_chooser.addDefault("Default Auto", new ExampleCommand());
-		// chooser.addObject("My Auto", new MyAutoCommand());
 		SmartDashboard.putData("Auto mode", m_chooser);
-		// client = new NetworkTableClient("limelight");
 
-		// Initialize Motors (HAD TO BE REWIRED)
-		// Looks random, but this is very specific
 		rightFrontMotor = new WPI_TalonSRX(3);
 		rightRearMotor = new WPI_TalonSRX(2);
 		leftFrontMotor = new WPI_TalonSRX(1);
 		leftRearMotor = new WPI_TalonSRX(4);
 
-		// Motors were built backwards
 		rightFrontMotor.setInverted(true);
 		rightRearMotor.setInverted(true);
 		leftFrontMotor.setInverted(true);
 		leftRearMotor.setInverted(true);
 
-		// Geriodicallyroup Motors
 		rightSpeedController = new SpeedControllerGroup(rightFrontMotor, rightRearMotor);
 		leftSpeedController = new SpeedControllerGroup(leftFrontMotor, leftRearMotor);
 
@@ -158,6 +150,8 @@ public class Robot extends TimedRobot {
 		}
 	}
 
+	// Make sure to use when feeding values to the drive train
+	// It is safer not to send values higher than 1 or lower than -1
 	private double capValue(double input) {
 		return Math.min(Math.max(input, -1), 1);
 	}
@@ -187,28 +181,27 @@ public class Robot extends TimedRobot {
 
 		// Curvature Drive Drive
 		else {
-			double xSpeed = 0, zRotation = -Math.pow(controller.getLeftX(), 3);
+			double speed = 0, turn = -Math.pow(controller.getLeftX(), 3);
 			boolean quickTurn = true;
 
+			// Aim Assist
 			if (controller.getRawLeftButton()) {
-				// Add auto aim to the tank drive controls
-				zRotation = capValue(zRotation + TURN_VAL);
-
+				turn = capValue(turn + TURN_VAL);
 				LimeLight.setCamMode(LimeLight.CAM_MODE.VISION);
 			} else {
 				LimeLight.setCamMode(LimeLight.CAM_MODE.DRIVER);
 			}
 
 			if (controller.getRawRightTrigger()) {
-				xSpeed += 1.0;
+				speed += 1.0;
 				quickTurn = false;
 			}
 			if (controller.getRawLeftTrigger()) {
-				xSpeed -= 1.0;
+				speed -= 1.0;
 				quickTurn = false;
 			}
 
-			differentialDrive.curvatureDrive(xSpeed, zRotation, quickTurn);
+			differentialDrive.curvatureDrive(speed, turn, quickTurn);
 		}
 	}
 
