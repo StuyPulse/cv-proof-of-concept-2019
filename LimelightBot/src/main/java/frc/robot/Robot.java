@@ -171,15 +171,15 @@ public class Robot extends TimedRobot {
 		// Drive forwards and turn automatically
 		if (controller.getRawTopButton()) {
 			if (AREA > BACKWARD_AREA) {
-				differentialDrive.curvatureDrive(-0.75, TURN_VAL, true);
+				differentialDrive.curvatureDrive(-0.75, capValue(TURN_VAL), true);
 			} else if (AREA < FORWARD_AREA && AREA != 0) {
-				differentialDrive.curvatureDrive((FORWARD_AREA - AREA) * SPEED, TURN_VAL, true);
+				differentialDrive.curvatureDrive(capValue((FORWARD_AREA - AREA) * SPEED), capValue(TURN_VAL), true);
 			}
 
 			LimeLight.setCamMode(LimeLight.CAM_MODE.VISION);
 		}
 
-		// Curvature Drive Drive
+		// Curvature Drive
 		else {
 			double speed = 0, turn = -Math.pow(controller.getLeftX(), 3);
 			boolean quickTurn = true;
