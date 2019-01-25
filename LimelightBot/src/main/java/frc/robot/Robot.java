@@ -183,10 +183,6 @@ public class Robot extends TimedRobot {
 	public void teleopPeriodic() {
 		Scheduler.getInstance().run();
 
-		// Recieve data from lime light
-		final double X = LimeLight.getTargetXOffset();
-		final double AREA = LimeLight.getTargetArea();
-
 		// Distance Calculations
 		double cameraHeight = SmartDashboard.getNumber("lheight", 0);
 		double cameraAngle = SmartDashboard.getNumber("langle", 0);
@@ -198,25 +194,22 @@ public class Robot extends TimedRobot {
 
 		// Auto Accelerate
 		boolean quickTurn = true;
+		final double AREA = LimeLight.getTargetArea();
 		if (controller.getRawTopButton() && AREA != 0) {
 			speed = capValue(MIN_SPEED + Math.max(FORWARD_AREA - AREA, 0) * AUTO_SPEED);
 
 			SmartDashboard.putString("Acceleration Mode", "Automatic");
 		} else {
+			speed *= ACCELERATION_DIV - 1;
 			if (controller.getRawRightTrigger()) {
-				// Average speed with 1 using acceleration as the preportion
-				speed *= ACCELERATION_DIV - 1;
 				speed += 1;
-				speed /= ACCELERATION_DIV;
-
 				quickTurn = false;
 			}
 			if (controller.getRawLeftTrigger()) {
-				// Average speed with 0 using acceleration as the preportion
-				speed -= speed / ACCELERATION_DIV;
-
+				speed -= 1;
 				quickTurn = false;
 			}
+			speed /= ACCELERATION_DIV;
 
 			SmartDashboard.putString("Acceleration Mode", "Manual");
 		}
@@ -224,7 +217,8 @@ public class Robot extends TimedRobot {
 		// Aim Assist
 		double turn = Math.pow(controller.getLeftX(), 3); // Left Stick
 		if (controller.getRawLeftButton() || controller.getRawTopButton()) {
-			turn += X / (TURN_DIV * Math.max(MOVE_DIV * speed, 1));
+			// Turn Towards Target
+			turn += LimeLight.getTargetXOffset() / (TURN_DIV * Math.max(MOVE_DIV * speed, 1));
 
 			if (DriverMode) {
 				LimeLight.setCamMode(LimeLight.CAM_MODE.VISION);
