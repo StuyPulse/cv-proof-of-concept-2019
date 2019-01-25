@@ -145,6 +145,11 @@ public class Robot extends TimedRobot {
 		}
 	}
 
+	/* MANUAL DRIVE VARIABLES */
+	// Using averages, you can allow for smoother movement
+	private final double ACCELERATION_DIV = 4;
+	private double speed = 0; // Speed that stays the same through movements
+
 	/* AIM ASSIST */
 	// Changes the speed that the robot will turn
 	private final double TURN_DIV = 24;
@@ -160,7 +165,7 @@ public class Robot extends TimedRobot {
 	private final double MIN_SPEED = 0.25;
 
 	// Auto Drive Speed
-	private final double SPEED = 1.5 / FORWARD_AREA;
+	private final double AUTO_SPEED = 1.5 / FORWARD_AREA;
 
 	// Make sure to use when feeding values to the drive train
 	// It is safer not to send values higher than 1 or lower than -1
@@ -183,7 +188,7 @@ public class Robot extends TimedRobot {
 		final double AREA = LimeLight.getTargetArea();
 
 		// Distance Calculations
-		double cameraHeight = SmartDashboard.getNumber("lheight", 0); 
+		double cameraHeight = SmartDashboard.getNumber("lheight", 0);
 		double cameraAngle = SmartDashboard.getNumber("langle", 0);
 		Vector2d Coords = LimeLight.getTargetCoordinates(cameraHeight, cameraAngle);
 		double distance = LimeLight.getTargetDistance(cameraHeight, cameraAngle);
@@ -192,22 +197,24 @@ public class Robot extends TimedRobot {
 		SmartDashboard.putNumber("Target Y Coord", Coords.y);
 
 		// Auto Accelerate
-		double speed = 0;
 		boolean quickTurn = true;
-		if (controller.getRawTopButton()) {
-			if (AREA != 0) {
-				speed = capValue(MIN_SPEED + Math.max(FORWARD_AREA - AREA, 0) * SPEED);
-			}
+		if (controller.getRawTopButton() && AREA != 0) {
+			speed = capValue(MIN_SPEED + Math.max(FORWARD_AREA - AREA, 0) * AUTO_SPEED);
 
 			SmartDashboard.putString("Acceleration Mode", "Automatic");
 		} else {
 			if (controller.getRawRightTrigger()) {
-				speed += 1.0;
+				// Average speed with 1 using acceleration as the preportion
+				speed *= ACCELERATION_DIV - 1;
+				speed += 1;
+				speed /= ACCELERATION_DIV;
+
 				quickTurn = false;
 			}
 			if (controller.getRawLeftTrigger()) {
-				speed *= 1.5; // If both are held, move at .5
-				speed -= 1.0;
+				// Average speed with 0 using acceleration as the preportion
+				speed -= speed / ACCELERATION_DIV;
+
 				quickTurn = false;
 			}
 
@@ -215,10 +222,9 @@ public class Robot extends TimedRobot {
 		}
 
 		// Aim Assist
-		final double TURN_VAL = X / (TURN_DIV * Math.max(MOVE_DIV * speed, 1));
 		double turn = Math.pow(controller.getLeftX(), 3); // Left Stick
 		if (controller.getRawLeftButton() || controller.getRawTopButton()) {
-			turn = capValue(turn + TURN_VAL);
+			turn += X / (TURN_DIV * Math.max(MOVE_DIV * speed, 1));
 
 			if (DriverMode) {
 				LimeLight.setCamMode(LimeLight.CAM_MODE.VISION);
@@ -227,8 +233,6 @@ public class Robot extends TimedRobot {
 
 			SmartDashboard.putString("Aim/Turning Mode", "Assisted");
 		} else {
-			turn = capValue(turn);
-
 			if (controller.getRawBottomButton()) {
 				if (DriverMode) {
 					LimeLight.setCamMode(LimeLight.CAM_MODE.VISION);
@@ -245,7 +249,7 @@ public class Robot extends TimedRobot {
 		}
 
 		// Feed values to drive train
-		differentialDrive.curvatureDrive(speed, turn, quickTurn);
+		differentialDrive.curvatureDrive(capValue(speed), capValue(turn), quickTurn);
 	}
 
 	/**
