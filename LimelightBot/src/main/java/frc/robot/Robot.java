@@ -167,12 +167,6 @@ public class Robot extends TimedRobot {
 	// Auto Drive Speed
 	private final double AUTO_SPEED = 1.5 / FORWARD_AREA;
 
-	// Make sure to use when feeding values to the drive train
-	// It is safer not to send values higher than 1 or lower than -1
-	private double capValue(double input) {
-		return Math.min(Math.max(input, -1), 1);
-	}
-
 	// Prevent overwriting to the network table
 	private boolean DriverMode = false;
 
@@ -196,7 +190,7 @@ public class Robot extends TimedRobot {
 		boolean quickTurn = true;
 		final double AREA = LimeLight.getTargetArea();
 		if (controller.getRawTopButton() && AREA != 0) {
-			speed = capValue(MIN_SPEED + Math.max(FORWARD_AREA - AREA, 0) * AUTO_SPEED);
+			speed = MIN_SPEED + Math.max(FORWARD_AREA - AREA, 0) * AUTO_SPEED;
 
 			SmartDashboard.putString("Acceleration Mode", "Automatic");
 		} else {
@@ -243,7 +237,7 @@ public class Robot extends TimedRobot {
 		}
 
 		// Feed values to drive train
-		differentialDrive.curvatureDrive(capValue(speed), capValue(turn), quickTurn);
+		differentialDrive.curvatureDrive(speed, turn, quickTurn);
 	}
 
 	/**
