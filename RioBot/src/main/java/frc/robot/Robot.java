@@ -47,7 +47,7 @@ public class Robot extends TimedRobot {
 
   private DifferentialDrive differentialDrive;
   
-  private final double TURN_DIV = 16;
+  private final double TURN_DIV = 100;
 
   /**
    * This function is run when the robot is first started up and should be
@@ -144,16 +144,18 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
 
-    final double x = vision.filter(cam);
-    final double TURN_VAL = capValue(x / TURN_DIV);
-
     Scheduler.getInstance().run();
-		System.out.println(System.getProperty("java.library.path"));
-		ModuleRunner runner = new ModuleRunner(5);
-		if (oi.gamepad.getRawLeftBumper() && (10 < Math.abs(x)) && (Math.abs(x) < 100000)) {
+	  //System.out.println(System.getProperty("java.library.path"));
+		//ModuleRunner runner = new ModuleRunner(5);
+    if (oi.gamepad.getRawLeftBumper()) {
       System.out.println("Bumper pressed");
-      System.out.println(x);
-      differentialDrive.tankDrive(-TURN_VAL, TURN_VAL);
+      final double x = vision.filter(cam);
+      final double TURN_VAL = capValue(x / TURN_DIV);
+
+      if (10 < Math.abs(x) && (Math.abs(x) < 100000)) {
+        System.out.println(x);
+        differentialDrive.curvatureDrive(0, TURN_VAL, true);
+      }
     }
   }
 

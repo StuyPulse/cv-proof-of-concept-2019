@@ -39,6 +39,7 @@ public class FilterVision {
 
         if (frame == null) {
             System.out.println("Failed to read from camera");
+            return 1000000000.0;
         } else {
         //Imgcodecs.imwrite("/tmp/" + localtime + ".png", frame);
         System.out.println("Succeeded in reading from camera");
@@ -52,11 +53,11 @@ public class FilterVision {
         Core.split(frame, channels);
 
         Mat hue = new Mat();
-        Core.inRange(channels.get(0), new Scalar(80), new Scalar(104), hue);
+        Core.inRange(channels.get(0), new Scalar(75), new Scalar(115), hue);
         //Imgcodecs.imwrite("/tmp/" + localtime + "hue.png", hue);
 
         Mat saturation = new Mat();
-        Core.inRange(channels.get(1), new Scalar(199), new Scalar(255), saturation);
+        Core.inRange(channels.get(1), new Scalar(69), new Scalar(128), saturation);
         //Imgcodecs.imwrite("/tmp/" + localtime + "sat.png", saturation);
 
         Mat filtered = new Mat();
@@ -132,8 +133,9 @@ public class FilterVision {
         contourClone.release();
         return getTurn(rectClone, overallRect);
             }
+            System.out.println("No target found");
+            Imgcodecs.imwrite("/tmp/" + localtime + "nothing.png", rectClone);
         }
-        System.out.println("No target found");
         frame.release();
         return 10000000000.0;
     }  

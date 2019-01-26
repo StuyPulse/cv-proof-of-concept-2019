@@ -9,7 +9,7 @@ public class Main {
     public static void main(String[] args) {
         System.out.println(System.getProperty("java.library.path"));
         ModuleRunner runner = new ModuleRunner(5);
-        DeviceCaptureSource cam = Camera.initializeCamera(0);
+        DeviceCaptureSource cam = Camera.initializeCamera(1);
         runner.addMapping(cam, new Vision());
         //runner.addMapping(new ImageCaptureSource("E:/test.png"), new Vision());
         VisionGui.begin(args, runner);
