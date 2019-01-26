@@ -27,7 +27,7 @@ public class Camera {
     public static DeviceCaptureSource initializeCamera(int cameraPort) {
         DeviceCaptureSource camera = new DeviceCaptureSource(cameraPort);
         System.out.println("Made camera at " + cameraPort);
-        //configureCamera(cameraPort);
+        configureCamera(cameraPort);
         return camera;
     }
 

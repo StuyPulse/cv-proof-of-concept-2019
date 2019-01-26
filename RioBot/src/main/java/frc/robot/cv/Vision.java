@@ -23,10 +23,12 @@ import stuyvision.gui.IntegerSliderVariable;
 
 public class Vision extends VisionModule {
 
-    public IntegerSliderVariable minHue = new IntegerSliderVariable("Min Hue", 0, 0, 255);
-    public IntegerSliderVariable maxHue = new IntegerSliderVariable("Max Hue", 0, 0, 255);
+    public IntegerSliderVariable minHue = new IntegerSliderVariable("Min Hue", 45, 0, 255);
+    public IntegerSliderVariable maxHue = new IntegerSliderVariable("Max Hue", 64, 0, 255);
     public IntegerSliderVariable minSaturation = new IntegerSliderVariable("Min Saturation", 0, 0, 255);
-    public IntegerSliderVariable maxSaturation = new IntegerSliderVariable("Max Saturation", 0, 0, 255);
+    public IntegerSliderVariable maxSaturation = new IntegerSliderVariable("Max Saturation", 35, 0, 255);
+    public IntegerSliderVariable minVal = new IntegerSliderVariable("Min Val", 0, 0, 255);
+    public IntegerSliderVariable maxVal = new IntegerSliderVariable("Max Val", 255, 0, 255);
 
     RotatedRect left = new RotatedRect();
     RotatedRect right = new RotatedRect();
@@ -52,17 +54,21 @@ public class Vision extends VisionModule {
 
         Mat hue = new Mat();
         Core.inRange(channels.get(0), new Scalar(minHue.value()), new Scalar(maxHue.value()), hue);
-        // postImage(hue, "Hue");
+        postImage(hue, "Hue");
 
         Mat saturation = new Mat();
         Core.inRange(channels.get(1), new Scalar(minSaturation.value()), new Scalar(maxSaturation.value()), saturation);
-        // postImage(saturation, "Saturation");
+        postImage(saturation, "Saturation");
+
+        Mat val = new Mat();
+        Core.inRange(channels.get(0), new Scalar(minVal.value()), new Scalar(maxVal.value()), val);
+        postImage(val, "Val");
 
         Mat filtered = new Mat();
         Core.bitwise_and(hue, saturation, filtered);
         postImage(filtered, "Filtered Image");
 
-        Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(5, 5));
+        Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(3, 3));
         Imgproc.erode(filtered, filtered, kernel);
         postImage(filtered, "Eroded");
 

@@ -13,6 +13,7 @@ import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.Point;
 import org.opencv.core.RotatedRect;
 import org.opencv.core.Scalar;
+import org.opencv.core.Size;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
@@ -53,16 +54,20 @@ public class FilterVision {
         Core.split(frame, channels);
 
         Mat hue = new Mat();
-        Core.inRange(channels.get(0), new Scalar(75), new Scalar(115), hue);
+        Core.inRange(channels.get(0), new Scalar(45), new Scalar(64), hue);
         //Imgcodecs.imwrite("/tmp/" + localtime + "hue.png", hue);
 
         Mat saturation = new Mat();
-        Core.inRange(channels.get(1), new Scalar(69), new Scalar(128), saturation);
+        Core.inRange(channels.get(1), new Scalar(0), new Scalar(35), saturation);
         //Imgcodecs.imwrite("/tmp/" + localtime + "sat.png", saturation);
 
         Mat filtered = new Mat();
         Core.bitwise_and(hue, saturation, filtered);
-        //Imgcodecs.imwrite("/tmp/" + localtime + "filtered.png", filtered);
+
+        Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(3, 3));
+        Imgproc.erode(filtered, filtered, kernel);
+
+        Imgcodecs.imwrite("/tmp/" + localtime + "filtered.png", filtered);
 
         ArrayList<MatOfPoint> contours = new ArrayList<MatOfPoint>();
         Imgproc.findContours(filtered, contours, new Mat(), Imgproc.RETR_EXTERNAL,Imgproc.CHAIN_APPROX_SIMPLE);

@@ -47,7 +47,7 @@ public class Robot extends TimedRobot {
 
   private DifferentialDrive differentialDrive;
   
-  private final double TURN_DIV = 100;
+  private final double TURN_DIV = 150;
 
   /**
    * This function is run when the robot is first started up and should be
