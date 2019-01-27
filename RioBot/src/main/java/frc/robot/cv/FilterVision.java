@@ -17,7 +17,6 @@ import org.opencv.core.Size;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
-import frc.robot.cv.Vision.Turn;
 import stuyvision.capture.DeviceCaptureSource;
 
 public class FilterVision {
@@ -31,16 +30,19 @@ public class FilterVision {
     MatOfPoint leftPointsMat;
     MatOfPoint rightPointsMat;
 
-    public double filter(DeviceCaptureSource cam) {
+    public ArrayList<Double> filter(DeviceCaptureSource cam) {
 
         //System.out.println("Bumper pressed");
         LocalDateTime time = LocalDateTime.now();
         String localtime = time.toString();
         Mat frame = Camera.getImage(cam);
+        ArrayList<Double> cont = new ArrayList<Double>();
 
         if (frame == null) {
             System.out.println("Failed to read from camera");
-            return 1000000000.0;
+            cont.add(100000000.0);
+            cont.add(100000000.0);
+            return cont;
         } else {
         //Imgcodecs.imwrite("/tmp/" + localtime + ".png", frame);
         System.out.println("Succeeded in reading from camera");
@@ -54,20 +56,20 @@ public class FilterVision {
         Core.split(frame, channels);
 
         Mat hue = new Mat();
-        Core.inRange(channels.get(0), new Scalar(45), new Scalar(64), hue);
+        Core.inRange(channels.get(0), new Scalar(55), new Scalar(71), hue);
         //Imgcodecs.imwrite("/tmp/" + localtime + "hue.png", hue);
 
-        Mat saturation = new Mat();
-        Core.inRange(channels.get(1), new Scalar(0), new Scalar(35), saturation);
-        //Imgcodecs.imwrite("/tmp/" + localtime + "sat.png", saturation);
+        Mat value = new Mat();
+        Core.inRange(channels.get(2), new Scalar(94), new Scalar(255), value);
+        //Imgcodecs.imwrite("/tmp/" + localtime + "val.png", value);
 
         Mat filtered = new Mat();
-        Core.bitwise_and(hue, saturation, filtered);
+        Core.bitwise_and(hue, value, filtered);
 
         Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(3, 3));
         Imgproc.erode(filtered, filtered, kernel);
 
-        Imgcodecs.imwrite("/tmp/" + localtime + "filtered.png", filtered);
+        //Imgcodecs.imwrite("/tmp/" + localtime + "filtered.png", filtered);
 
         ArrayList<MatOfPoint> contours = new ArrayList<MatOfPoint>();
         Imgproc.findContours(filtered, contours, new Mat(), Imgproc.RETR_EXTERNAL,Imgproc.CHAIN_APPROX_SIMPLE);
@@ -129,20 +131,29 @@ public class FilterVision {
     
         Imgproc.circle(rectClone, overallRect.center, 3, new Scalar(255, 255, 0), 2);
     
-        Imgcodecs.imwrite("/tmp/" + localtime + "overall.png", rectClone);
+        //Imgcodecs.imwrite("/tmp/" + localtime + "overall.png", rectClone);
 
         frame.release();
-        saturation.release();
+        value.release();
         hue.release();
         filtered.release();
+        kernel.release();
         contourClone.release();
-        return getTurn(rectClone, overallRect);
+
+        double turn = getTurn(rectClone, overallRect);
+        double area = overallRect.size.area();
+        rectClone.release();
+        cont.add(turn);
+        cont.add(area);
+        return cont;
             }
             System.out.println("No target found");
-            Imgcodecs.imwrite("/tmp/" + localtime + "nothing.png", rectClone);
+            //Imgcodecs.imwrite("/tmp/" + localtime + "nothing.png", rectClone);
         }
         frame.release();
-        return 10000000000.0;
+        cont.add(10000000.0);
+        cont.add(10000000.0);
+        return cont;
     }  
 
     public double getTurn(Mat frame, RotatedRect rect) {

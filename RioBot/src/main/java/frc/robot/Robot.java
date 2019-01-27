@@ -9,6 +9,8 @@ package frc.robot;
 
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
+import org.opencv.videoio.VideoCapture;
+
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.command.Scheduler;
@@ -47,7 +49,8 @@ public class Robot extends TimedRobot {
 
   private DifferentialDrive differentialDrive;
   
-  private final double TURN_DIV = 150;
+  private final double TURN_DIV = 120;
+  private final double ORIGINAL_AREA = -1;
 
   /**
    * This function is run when the robot is first started up and should be
@@ -144,18 +147,23 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
 
+    final double AREA = (vision.filter(cam)).get(1);
+
     Scheduler.getInstance().run();
 	  //System.out.println(System.getProperty("java.library.path"));
 		//ModuleRunner runner = new ModuleRunner(5);
     if (oi.gamepad.getRawLeftBumper()) {
       System.out.println("Bumper pressed");
-      final double x = vision.filter(cam);
-      final double TURN_VAL = capValue(x / TURN_DIV);
+      double x = (vision.filter(cam)).get(0);
+      double TURN_VAL = capValue(x / TURN_DIV);
 
       if (10 < Math.abs(x) && (Math.abs(x) < 100000)) {
         System.out.println(x);
         differentialDrive.curvatureDrive(0, TURN_VAL, true);
       }
+    } else if (oi.gamepad.getRawRightBumper() && AREA != 0) {
+        System.out.println("Right Bumper pressed");
+        differentialDrive.tankDrive(0.25, 0.25);
     }
   }
 

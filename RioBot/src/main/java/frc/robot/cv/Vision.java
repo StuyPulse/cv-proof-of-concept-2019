@@ -53,6 +53,7 @@ public class Vision extends VisionModule {
         Core.split(frame, channels);
 
         Mat hue = new Mat();
+        postImage(channels.get(0), "Before Hue");
         Core.inRange(channels.get(0), new Scalar(minHue.value()), new Scalar(maxHue.value()), hue);
         postImage(hue, "Hue");
 
@@ -61,11 +62,12 @@ public class Vision extends VisionModule {
         postImage(saturation, "Saturation");
 
         Mat val = new Mat();
-        Core.inRange(channels.get(0), new Scalar(minVal.value()), new Scalar(maxVal.value()), val);
+        postImage(channels.get(2), "Before Val");
+        Core.inRange(channels.get(2), new Scalar(minVal.value()), new Scalar(maxVal.value()), val);
         postImage(val, "Val");
 
         Mat filtered = new Mat();
-        Core.bitwise_and(hue, saturation, filtered);
+        Core.bitwise_and(hue, val, filtered);
         postImage(filtered, "Filtered Image");
 
         Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(3, 3));
@@ -111,8 +113,10 @@ public class Vision extends VisionModule {
         rightPointsMat = new MatOfPoint(rightPoints);
 
         Imgproc.drawContours(rectClone, Arrays.asList(leftPointsMat), -1, new Scalar(255, 0, 0), 2);
+        Imgproc.putText(rectClone, Double.toString(left.angle), left.center, Core.FONT_HERSHEY_SIMPLEX, 1, new Scalar(255, 255, 255));
         Imgproc.drawContours(rectClone, Arrays.asList(rightPointsMat), -1, new Scalar(0, 255, 0), 2);
-        
+        Imgproc.putText(rectClone, Double.toString(right.angle), right.center, Core.FONT_HERSHEY_SIMPLEX, 1, new Scalar(0, 0, 0));
+
         if (left.center.x < right.center.x) {
             System.out.println("Correct spot");
         } else {
@@ -131,9 +135,13 @@ public class Vision extends VisionModule {
 
         Imgproc.circle(rectClone, overallRect.center, 3, new Scalar(255, 255, 0), 2);
 
+        Imgproc.putText(rectClone, Double.toString(overallRect.size.area()), overallRect.center, Core.FONT_HERSHEY_SIMPLEX, 1, new Scalar(255, 255, 255));
+
         getTurn(rectClone, overallRect);
 
         postImage(rectClone, "Overall Rectangle");
+
+        System.out.println(overallRect.size.area());
     }
 
     public enum Turn {
