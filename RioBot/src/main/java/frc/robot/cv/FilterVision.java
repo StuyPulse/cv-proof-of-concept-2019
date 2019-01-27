@@ -34,8 +34,6 @@ public class FilterVision {
 
     public ArrayList<Double> filter(DeviceCaptureSource cam) {
 
-        //startTime = 
-
         //System.out.println("Bumper pressed");
         LocalDateTime time = LocalDateTime.now();
         String localtime = time.toString();
@@ -49,7 +47,7 @@ public class FilterVision {
             return cont;
         } else {
         //Imgcodecs.imwrite("/tmp/" + localtime + ".png", frame);
-        System.out.println("Succeeded in reading from camera");
+        //System.out.println("Succeeded in reading from camera");
 
         Mat contourClone = frame.clone();
         Mat rectClone = frame.clone();
@@ -118,7 +116,7 @@ public class FilterVision {
         Imgproc.drawContours(rectClone, Arrays.asList(rightPointsMat), -1, new Scalar(0, 255, 0), 2);
             
         if (left.center.x < right.center.x) {
-            System.out.println("Correct spot");
+            //System.out.println("Correct spot");
         } else {
             System.out.println("Between targets");
         }
