@@ -14,6 +14,6 @@ public class Main {
         //DeviceCaptureSource cam = Camera.initializeCamera(0);
         //runner.addMapping(cam, new Vision());
         runner.addMapping(new ImageCaptureSource("E:/test13.png"), new Vision());
-        VisionGui.begin(args, runner);
+        //VisionGui.begin(args, runner);
     }
 }

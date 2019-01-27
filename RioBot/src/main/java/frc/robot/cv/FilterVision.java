@@ -30,7 +30,11 @@ public class FilterVision {
     MatOfPoint leftPointsMat;
     MatOfPoint rightPointsMat;
 
+    double startTime;
+
     public ArrayList<Double> filter(DeviceCaptureSource cam) {
+
+        //startTime = 
 
         //System.out.println("Bumper pressed");
         LocalDateTime time = LocalDateTime.now();

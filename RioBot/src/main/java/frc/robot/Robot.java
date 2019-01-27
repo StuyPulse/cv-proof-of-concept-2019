@@ -142,7 +142,12 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
 
+    differentialDrive.tankDrive(-0.5, -0.5);
+
     Scheduler.getInstance().run();
+
+    //differentialDrive.tankDrive(0.5, 0.5);
+
 	  //System.out.println(System.getProperty("java.library.path"));
 		//ModuleRunner runner = new ModuleRunner(5);
     if (oi.gamepad.getRawLeftBumper()) {
@@ -159,18 +164,18 @@ public class Robot extends TimedRobot {
     if (oi.gamepad.getRawRightBumper()) {
       System.out.println("Right bumper pressed");
       double area = vision.filter(cam).get(1);
-      
+
       if (area > 0 && area < 10000000) {
-        if (Math.abs(TARGET_AREA - area)  >= 1000) {
+        if (Math.abs(TARGET_AREA - area)  >= 500) {
           double sign = Math.signum(TARGET_AREA - area);
           System.out.println(area + ", " + sign);
           differentialDrive.tankDrive(sign * 0.5, sign * 0.5);
-          System.out.println("Moving");
+          System.out.println("Moving at " + leftFrontMotor.get());
         } else {
           differentialDrive.tankDrive(0, 0);
         }
       }
-    }
+     }
   }
 
   /**
