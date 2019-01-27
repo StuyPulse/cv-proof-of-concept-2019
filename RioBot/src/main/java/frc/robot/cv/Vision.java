@@ -23,11 +23,11 @@ import stuyvision.gui.IntegerSliderVariable;
 
 public class Vision extends VisionModule {
 
-    public IntegerSliderVariable minHue = new IntegerSliderVariable("Min Hue", 45, 0, 255);
-    public IntegerSliderVariable maxHue = new IntegerSliderVariable("Max Hue", 64, 0, 255);
-    public IntegerSliderVariable minSaturation = new IntegerSliderVariable("Min Saturation", 0, 0, 255);
-    public IntegerSliderVariable maxSaturation = new IntegerSliderVariable("Max Saturation", 35, 0, 255);
-    public IntegerSliderVariable minVal = new IntegerSliderVariable("Min Val", 0, 0, 255);
+    public IntegerSliderVariable minHue = new IntegerSliderVariable("Min Hue", 58, 0, 255);
+    public IntegerSliderVariable maxHue = new IntegerSliderVariable("Max Hue", 96, 0, 255);
+    // public IntegerSliderVariable minSaturation = new IntegerSliderVariable("Min Saturation", 0, 0, 255);
+    // public IntegerSliderVariable maxSaturation = new IntegerSliderVariable("Max Saturation", 35, 0, 255);
+    public IntegerSliderVariable minVal = new IntegerSliderVariable("Min Val", 66, 0, 255);
     public IntegerSliderVariable maxVal = new IntegerSliderVariable("Max Val", 255, 0, 255);
 
     RotatedRect left = new RotatedRect();
@@ -57,9 +57,9 @@ public class Vision extends VisionModule {
         Core.inRange(channels.get(0), new Scalar(minHue.value()), new Scalar(maxHue.value()), hue);
         postImage(hue, "Hue");
 
-        Mat saturation = new Mat();
-        Core.inRange(channels.get(1), new Scalar(minSaturation.value()), new Scalar(maxSaturation.value()), saturation);
-        postImage(saturation, "Saturation");
+        //Mat saturation = new Mat();
+        //Core.inRange(channels.get(1), new Scalar(minSaturation.value()), new Scalar(maxSaturation.value()), saturation);
+        //postImage(saturation, "Saturation");
 
         Mat val = new Mat();
         postImage(channels.get(2), "Before Val");
@@ -114,7 +114,7 @@ public class Vision extends VisionModule {
 
         Imgproc.drawContours(rectClone, Arrays.asList(leftPointsMat), -1, new Scalar(255, 0, 0), 2);
         Imgproc.putText(rectClone, Double.toString(left.angle), left.center, Core.FONT_HERSHEY_SIMPLEX, 1, new Scalar(255, 255, 255));
-        Imgproc.drawContours(rectClone, Arrays.asList(rightPointsMat), -1, new Scalar(0, 255, 0), 2);
+        Imgproc.drawContours(rectClone, Arrays.asList(rightPointsMat), -1, new Scalar(0, 0, 255), 2);
         Imgproc.putText(rectClone, Double.toString(right.angle), right.center, Core.FONT_HERSHEY_SIMPLEX, 1, new Scalar(0, 0, 0));
 
         if (left.center.x < right.center.x) {

@@ -56,11 +56,11 @@ public class FilterVision {
         Core.split(frame, channels);
 
         Mat hue = new Mat();
-        Core.inRange(channels.get(0), new Scalar(55), new Scalar(71), hue);
+        Core.inRange(channels.get(0), new Scalar(58), new Scalar(96), hue);
         //Imgcodecs.imwrite("/tmp/" + localtime + "hue.png", hue);
 
         Mat value = new Mat();
-        Core.inRange(channels.get(2), new Scalar(94), new Scalar(255), value);
+        Core.inRange(channels.get(2), new Scalar(66), new Scalar(255), value);
         //Imgcodecs.imwrite("/tmp/" + localtime + "val.png", value);
 
         Mat filtered = new Mat();
@@ -73,10 +73,10 @@ public class FilterVision {
 
         ArrayList<MatOfPoint> contours = new ArrayList<MatOfPoint>();
         Imgproc.findContours(filtered, contours, new Mat(), Imgproc.RETR_EXTERNAL,Imgproc.CHAIN_APPROX_SIMPLE);
-        Imgproc.drawContours(contourClone, contours, -1, new Scalar(0, 255, 0), 1);
-        //Imgcodecs.imwrite("/tmp/" + localtime + "contours.png", filtered);
+        Imgproc.drawContours(contourClone, contours, -1, new Scalar(0, 255, 0), 2);
+        //Imgcodecs.imwrite("/tmp/" + localtime + "contours.png", contourClone);
 
-        if (contours.size() > 2) {
+        if (contours.size() >= 2) {
         contours.sort(new Comparator<MatOfPoint>() {
             @Override
             public int compare(MatOfPoint m1, MatOfPoint m2) {
@@ -142,13 +142,22 @@ public class FilterVision {
 
         double turn = getTurn(rectClone, overallRect);
         double area = overallRect.size.area();
+        
         rectClone.release();
         cont.add(turn);
         cont.add(area);
         return cont;
-            }
+        } else {
             System.out.println("No target found");
             //Imgcodecs.imwrite("/tmp/" + localtime + "nothing.png", rectClone);
+            }
+            frame.release();
+            value.release();
+            hue.release();
+            filtered.release();
+            kernel.release();
+            contourClone.release();
+            rectClone.release();
         }
         frame.release();
         cont.add(10000000.0);

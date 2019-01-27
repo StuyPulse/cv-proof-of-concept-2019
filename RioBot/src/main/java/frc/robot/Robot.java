@@ -9,17 +9,13 @@ package frc.robot;
 
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
-import org.opencv.videoio.VideoCapture;
-
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.cv.Camera;
 import frc.robot.cv.FilterVision;
-import stuyvision.ModuleRunner;
 import stuyvision.capture.DeviceCaptureSource;
 
 /**
@@ -49,8 +45,8 @@ public class Robot extends TimedRobot {
 
   private DifferentialDrive differentialDrive;
   
-  private final double TURN_DIV = 120;
-  private final double ORIGINAL_AREA = -1;
+  private final double TURN_DIV = 190;
+  private final double TARGET_AREA = 3500;
 
   /**
    * This function is run when the robot is first started up and should be
@@ -58,9 +54,6 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
-    m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
-    m_chooser.addOption("My Auto", kCustomAuto);
-    SmartDashboard.putData("Auto choices", m_chooser);
     rightFrontMotor = new WPI_TalonSRX(3);
 		rightRearMotor = new WPI_TalonSRX(2);
 		leftFrontMotor = new WPI_TalonSRX(1);
@@ -78,6 +71,8 @@ public class Robot extends TimedRobot {
 
     oi = new OI();
     cam = Camera.initializeCamera(0);
+
+    //CameraServer.getInstance().startAutomaticCapture(0);
 
     vision = new FilterVision();
   }
@@ -147,13 +142,11 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
 
-    final double AREA = (vision.filter(cam)).get(1);
-
     Scheduler.getInstance().run();
 	  //System.out.println(System.getProperty("java.library.path"));
 		//ModuleRunner runner = new ModuleRunner(5);
     if (oi.gamepad.getRawLeftBumper()) {
-      System.out.println("Bumper pressed");
+      System.out.println("Left bumper pressed");
       double x = (vision.filter(cam)).get(0);
       double TURN_VAL = capValue(x / TURN_DIV);
 
@@ -161,9 +154,22 @@ public class Robot extends TimedRobot {
         System.out.println(x);
         differentialDrive.curvatureDrive(0, TURN_VAL, true);
       }
-    } else if (oi.gamepad.getRawRightBumper() && AREA != 0) {
-        System.out.println("Right Bumper pressed");
-        differentialDrive.tankDrive(0.25, 0.25);
+    } 
+    
+    if (oi.gamepad.getRawRightBumper()) {
+      System.out.println("Right bumper pressed");
+      double area = vision.filter(cam).get(1);
+      
+      if (area > 0 && area < 10000000) {
+        if (Math.abs(TARGET_AREA - area)  >= 1000) {
+          double sign = Math.signum(TARGET_AREA - area);
+          System.out.println(area + ", " + sign);
+          differentialDrive.tankDrive(sign * 0.5, sign * 0.5);
+          System.out.println("Moving");
+        } else {
+          differentialDrive.tankDrive(0, 0);
+        }
+      }
     }
   }
 
