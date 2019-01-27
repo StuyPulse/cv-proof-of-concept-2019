@@ -11,6 +11,7 @@ import java.util.ArrayList;
 
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
+import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.command.Scheduler;
@@ -47,13 +48,16 @@ public class Robot extends TimedRobot {
 
   private DifferentialDrive differentialDrive;
 
-  private final double TURN_DIV = 250;
+  private final double TURN_DIV = 300;
   private final double TARGET_AREA = 3500;
 
   private Thread cvThread;
   private ArrayList<Double> cvReading;
   private double targetArea;
   private double targetOffset;
+
+  private double sign;
+  private double turn;
 
   /**
    * This function is run when the robot is first started up and should be used
@@ -82,6 +86,7 @@ public class Robot extends TimedRobot {
     // CameraServer.getInstance().startAutomaticCapture(0);
 
     vision = new FilterVision();
+
   }
 
   /**
@@ -160,8 +165,30 @@ public class Robot extends TimedRobot {
         if (cvReading != null) {
           targetOffset = cvReading.get(0);
           targetArea = cvReading.get(1);
+          System.out.println("thread running");
         }
       }
+    }
+  }
+
+  public void setTurn() {
+    if ((cvReading != null) && (Math.abs(targetOffset) > 5) && (Math.abs(targetOffset) < 100000)) {
+      turn = capValue(targetOffset / TURN_DIV);
+      // System.out.println(targetOffset);
+      // differentialDrive.curvatureDrive(0, turn, true);
+    }
+  }
+
+  public void setDistance() {
+    if ((cvReading != null) && (targetArea > 0) && (targetArea < 10000000)
+        && (Math.abs(TARGET_AREA - targetArea) >= 500)) {
+      sign = Math.signum(TARGET_AREA - targetArea);
+      // System.out.println(TARGET_AREA - targetArea);
+      // differentialDrive.tankDrive(sign * 0.5, sign * 0.5);
+      // System.out.println("Moving at " + leftFrontMotor.get());
+    } else {
+      sign = 0;
+      // differentialDrive.tankDrive(0, 0);
     }
   }
 
@@ -171,32 +198,28 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
 
-    //differentialDrive.tankDrive(-0.5, -0.5);
+    // differentialDrive.tankDrive(-0.5, -0.5);
 
     Scheduler.getInstance().run();
 
-    //differentialDrive.tankDrive(0.5, 0.5);
+    // differentialDrive.tankDrive(0.5, 0.5);
 
     // System.out.println(System.getProperty("java.library.path"));
     // ModuleRunner runner = new ModuleRunner(5);
     if (oi.gamepad.getRawLeftBumper()) {
-      if ((cvReading != null) && (Math.abs(targetOffset) > 5) && (Math.abs(targetOffset) < 100000)) {
-        double TURN_VAL = capValue(targetOffset / TURN_DIV);
-        System.out.println(targetOffset);
-        differentialDrive.curvatureDrive(0, TURN_VAL, true);
-      }
+      setTurn();
+      differentialDrive.curvatureDrive(0, turn, true);
     }
 
     if (oi.gamepad.getRawRightBumper()) {
-      if ((cvReading != null) && (targetArea > 0) && (targetArea < 10000000)
-          && (Math.abs(TARGET_AREA - targetArea) >= 500)) {
-        double sign = Math.signum(TARGET_AREA - targetArea);
-        System.out.println(targetArea + ", " + sign);
-        differentialDrive.tankDrive(sign * 0.5, sign * 0.5);
-        System.out.println("Moving at " + leftFrontMotor.get());
-      } else {
-        differentialDrive.tankDrive(0, 0);
-      }
+      setDistance();
+      differentialDrive.tankDrive(sign * 0.5, sign * 0.5);
+    }
+
+    if (oi.gamepad.getRawRightButton()) { // actually bottom button
+      setTurn();
+      setDistance();
+      differentialDrive.curvatureDrive(0.25 * sign, turn, true);
     }
   }
 

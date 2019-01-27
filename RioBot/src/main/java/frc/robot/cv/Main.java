@@ -1,11 +1,7 @@
 package frc.robot.cv;
 
-import org.opencv.videoio.VideoCapture;
-
 import stuyvision.ModuleRunner;
-import stuyvision.capture.DeviceCaptureSource;
 import stuyvision.capture.ImageCaptureSource;
-import stuyvision.gui.VisionGui;
 
 public class Main {
     public static void main(String[] args) {
