@@ -154,6 +154,10 @@ public class FilterVision {
                 leftPointsMat.release();
                 rightPointsMat.release();
 
+                for (int i = 0; i < contours.size(); i++) {
+                    contours.get(i).release();
+                }
+
                 return cont;
 
             } else {

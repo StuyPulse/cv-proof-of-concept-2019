@@ -183,12 +183,8 @@ public class Robot extends TimedRobot {
     if ((cvReading != null) && (targetArea > 0) && (targetArea < 10000000)
         && (Math.abs(TARGET_AREA - targetArea) >= 500)) {
       sign = Math.signum(TARGET_AREA - targetArea);
-      // System.out.println(TARGET_AREA - targetArea);
-      // differentialDrive.tankDrive(sign * 0.5, sign * 0.5);
-      // System.out.println("Moving at " + leftFrontMotor.get());
     } else {
       sign = 0;
-      // differentialDrive.tankDrive(0, 0);
     }
   }
 
