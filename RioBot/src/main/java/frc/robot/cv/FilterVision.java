@@ -83,14 +83,22 @@ public class FilterVision {
                 contours.sort(new Comparator<MatOfPoint>() {
                     @Override
                     public int compare(MatOfPoint m1, MatOfPoint m2) {
-                        RotatedRect rect1 = Imgproc.minAreaRect(new MatOfPoint2f(m1.toArray()));
-                        RotatedRect rect2 = Imgproc.minAreaRect(new MatOfPoint2f(m2.toArray()));
+                        MatOfPoint2f m1Mat = new MatOfPoint2f(m1.toArray());
+                        MatOfPoint2f m2Mat = new MatOfPoint2f(m2.toArray());
+                        RotatedRect rect1 = Imgproc.minAreaRect(m1Mat);
+                        RotatedRect rect2 = Imgproc.minAreaRect(m2Mat);
 
                         if (rect1.size.area() < rect2.size.area()) {
+                            m1Mat.release();
+                            m2Mat.release();
                             return -1;
                         } else if (rect2.size.area() > rect1.size.area()) {
+                            m1Mat.release();
+                            m2Mat.release();
                             return 1;
                         } else {
+                            m1Mat.release();
+                            m2Mat.release();
                             return 0;
                         }
                     }
@@ -98,13 +106,16 @@ public class FilterVision {
 
                 Collections.reverse(contours);
 
-                RotatedRect rect = Imgproc.minAreaRect(new MatOfPoint2f(contours.get(0).toArray()));
+                MatOfPoint2f c0Mat = new MatOfPoint2f(contours.get(0).toArray());
+                MatOfPoint2f c1Mat = new MatOfPoint2f(contours.get(1).toArray());
+
+                RotatedRect rect = Imgproc.minAreaRect(c0Mat);
                 if (rect.angle < -45) {
                     left = rect;
-                    right = Imgproc.minAreaRect(new MatOfPoint2f(contours.get(1).toArray()));
+                    right = Imgproc.minAreaRect(c1Mat);
                 } else {
                     right = rect;
-                    left = Imgproc.minAreaRect(new MatOfPoint2f(contours.get(1).toArray()));
+                    left = Imgproc.minAreaRect(c1Mat);
                 }
 
                 left.points(leftPoints);
@@ -124,8 +135,12 @@ public class FilterVision {
                 // Imgcodecs.imwrite("/tmp/" + localtime + "rect.png", rectClone);
 
                 Point[] vertices = new Point[4];
-                RotatedRect overallRect = Imgproc.minAreaRect(new MatOfPoint2f(leftPoints[0], leftPoints[1],
-                        leftPoints[2], leftPoints[3], rightPoints[0], rightPoints[1], rightPoints[2], rightPoints[3]));
+
+                MatOfPoint2f overallPoints = new MatOfPoint2f(leftPoints[0], leftPoints[1],
+                leftPoints[2], leftPoints[3], rightPoints[0], rightPoints[1], rightPoints[2], rightPoints[3]);
+
+                RotatedRect overallRect = Imgproc.minAreaRect(overallPoints);
+
                 overallRect.points(vertices);
                 MatOfPoint points = new MatOfPoint(vertices);
                 Imgproc.drawContours(rectClone, Arrays.asList(points), -1, new Scalar(0, 0, 255));
@@ -153,6 +168,14 @@ public class FilterVision {
                 hierarchy.release();
                 leftPointsMat.release();
                 rightPointsMat.release();
+                overallPoints.release();
+                c0Mat.release();
+                c1Mat.release();
+                points.release();
+
+                for (int i = 0; i < channels.size(); i++) {
+                    channels.get(i).release();
+                }
 
                 for (int i = 0; i < contours.size(); i++) {
                     contours.get(i).release();
@@ -173,6 +196,10 @@ public class FilterVision {
             contourClone.release();
             rectClone.release();
             hierarchy.release();
+
+            for (int i = 0; i < channels.size(); i++) {
+                channels.get(i).release();
+            }
 
             for (int i = 0; i < contours.size(); i++) {
                 contours.get(i).release();
