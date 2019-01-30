@@ -14,6 +14,7 @@ import org.opencv.core.Point;
 import org.opencv.core.RotatedRect;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
+import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
 import stuyvision.capture.DeviceCaptureSource;
@@ -150,10 +151,11 @@ public class FilterVision {
 
                 Imgproc.circle(rectClone, overallRect.center, 3, new Scalar(255, 255, 0), 2);
 
-                // Imgcodecs.imwrite("/tmp/" + localtime + "overall.png", rectClone);
+                Imgproc.putText(rectClone, Double.toString(overallRect.size.area()), overallRect.center, Core.FONT_HERSHEY_SIMPLEX, 1, new Scalar(255, 255, 255));
+                //Imgcodecs.imwrite("/tmp/" + localtime + "overall.png", rectClone);
 
                 double turn = getTurn(rectClone, overallRect);
-                double area = overallRect.size.area();
+                double area = overallRect.size.area() / (frame.height() * frame.width());
 
                 cont.add(turn);
                 cont.add(area);

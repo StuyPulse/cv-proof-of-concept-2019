@@ -49,14 +49,15 @@ public class Robot extends TimedRobot {
   private DifferentialDrive differentialDrive;
 
   private final double TURN_DIV = 300;
-  private final double TARGET_AREA = 3500;
+  private final double TARGET_AREA = 0.06;
+  private final double AUTO_SPEED = 2/TARGET_AREA; //too high
 
   private Thread cvThread;
   private ArrayList<Double> cvReading;
   private double targetArea;
   private double targetOffset;
 
-  private double sign;
+  private double speed;
   private double turn;
 
   /**
@@ -166,6 +167,7 @@ public class Robot extends TimedRobot {
           targetOffset = cvReading.get(0);
           targetArea = cvReading.get(1);
           System.out.println("thread running");
+          System.out.println(targetArea);
         }
       }
     }
@@ -180,11 +182,10 @@ public class Robot extends TimedRobot {
   }
 
   public void setDistance() {
-    if ((cvReading != null) && (targetArea > 0) && (targetArea < 10000000)
-        && (Math.abs(TARGET_AREA - targetArea) >= 500)) {
-      sign = Math.signum(TARGET_AREA - targetArea);
+    if ((cvReading != null) && (targetArea > 0) && (targetArea < 10000000)) {
+      speed = (TARGET_AREA - targetArea) * AUTO_SPEED;
     } else {
-      sign = 0;
+      speed = 0;
     }
   }
 
@@ -200,6 +201,10 @@ public class Robot extends TimedRobot {
 
     // differentialDrive.tankDrive(0.5, 0.5);
 
+    if (oi.gamepad.getRawDPadDown()) {
+      vision.filter(cam);
+    }
+
     // System.out.println(System.getProperty("java.library.path"));
     // ModuleRunner runner = new ModuleRunner(5);
     if (oi.gamepad.getRawLeftBumper()) {
@@ -209,13 +214,13 @@ public class Robot extends TimedRobot {
 
     if (oi.gamepad.getRawRightBumper()) {
       setDistance();
-      differentialDrive.tankDrive(sign * 0.5, sign * 0.5);
+      differentialDrive.tankDrive(speed, speed);
     }
 
     if (oi.gamepad.getRawRightButton()) { // actually bottom button
       setTurn();
       setDistance();
-      differentialDrive.curvatureDrive(0.25 * sign, turn, true);
+      differentialDrive.curvatureDrive(speed, turn, true);
     }
   }
 
